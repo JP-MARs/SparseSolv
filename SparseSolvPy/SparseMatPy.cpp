@@ -44,14 +44,25 @@ PYBIND11_MODULE(SparseSolvPy, m)
 	// publish SparseMatC to Python
 	py::class_<MatSolversICCG>(m, "MatSolversICCG")
 		.def(py::init<>())
-		.def("solveICCGPy", [](int size, const double conv_cri, const int max_ite, const double accera, const SparseMat& A, const py::array_t<double>& b, py::array_t<double>& x, bool is_log){
+		.def("solveICCGPy", [](int size, const double conv_cri, const int max_ite, const double accera, const SparseMat& A, const py::array_t<double>& b, py::array_t<double>& x, bool is_log, bool is_save_best, bool _is_diag_scale, int DivergeType, double BadDivVal, int BadDviCount){
 			MatSolversICCG iccg;
 			iccg.setSaveLog(is_log);
+			iccg.setSaveBest(is_save_best);
+			iccg.setDiagScale(is_diag_scale);
+			iccg.setDivergeType(DivergeType);
+			iccg.setBadDivVal(BadDivVal);
+			iccg.setBadDivCount(BadDivVCount);
 			bool bl = iccg.solveICCG( size, conv_cri, max_ite, accera, A, b.data(), const_cast<double*>(x.data()) );
 			std::vector<double> log;
 			iccg.getResidualLog(log);
 			return log;
 		})
+		//.def("setSaveBest", &MatSolversICCG::setSaveBest)
+		//.def("setDiagScale", &MatSolversICCG::setDiagScale)
+		//.def("setDivergeType", &MatSolversICCG::setDivergeType)
+		//.def("setBadDivVal", &MatSolversICCG::setBadDivVal)
+		//.def("setBadDivCount", &MatSolversICCG::setBadDivCount)
+		//.def("setSsaveLog", &MatSolversICCG::setSaveLog)
 		//.def("solveICCG", py::overload_cast<int, const double, const int, const double, const SparseMat&, const std::vector<double>&, std::vector<double>&, bool>(&MatSolversICCG::solveICCG))
 		//.def("solveICCGwithABMC", py::overload_cast<int, const double, const int, const double, const SparseMat&, const std::vector<double>&, std::vector<double>&, int, int, bool>(&MatSolversICCG::solveICCGwithABMC))
 	;
