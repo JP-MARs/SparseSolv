@@ -68,11 +68,11 @@ is_diag_scale = True
 DivergeType = 1
 BadDivVal = 100.0
 BadDivCount = 100
-log = SparseSolvPy.MatSolversICCG.solveICCGPy(len(fcut), tol, max_iter, acc, mat, fcut, ucut, True)
 
-print(type(log))
-for arg in log:
-	print(arg)
+log = SparseSolvPy.MatSolversICCG.solveICCGPy(len(fcut), tol, max_iter, acc, mat, fcut, ucut, is_log, is_save_best, is_diag_scale, DivergeType, BadDivVal, BadDivCount)
+
+for n in range(len(log)):
+	print(f'iteration {n}    err = {log[n]}')
 
 array(gfA.vec.FV(), copy=False)[fes.FreeDofs()] = ucut
 
