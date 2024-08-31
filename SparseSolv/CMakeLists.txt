@@ -1,16 +1,19 @@
 project(SparseSolv CXX)
-# set base dir
+#出力先はベース
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${Basedir})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${Basedir})
 
-# target cpp
+#コンパイル設定
 add_library(SparseSolv
   STATIC
     SparseMat.cpp
     SparseMatC.cpp
     SparseMatOperators.cpp
+    MatSolvers_Base.cpp
     MatSolvers_ICCG.cpp
     MatSolvers_ICCOCG.cpp
+    MatSolvers_ICMRTR.cpp
+    MatSolvers_SGSMRTR.cpp
     MatSolvers_Eigen.cpp
     MatSolvers_MKL.cpp
     MatSolvers_ABMCICCG.cpp
@@ -38,4 +41,3 @@ else()
   target_compile_options(SparseSolv PUBLIC -std=c++14 -O3 -fopenmp)
   target_link_libraries(SparseSolv PUBLIC OpenMP::OpenMP_CXX)
 endif()
-

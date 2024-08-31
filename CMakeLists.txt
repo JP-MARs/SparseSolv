@@ -10,13 +10,13 @@ if(CMAKE_CXX_COMPILER MATCHES "icpc")
  message("Intel classical Compiler use !")
 elseif(CMAKE_CXX_COMPILER MATCHES "icpx")
  message("Intel new Compiler use !")
- set(CMAKE_AR "/opt/intel/oneapi/compiler/latest/linux/bin-llvm/llvm-ar")
- set(CMAKE_NM "/opt/intel/oneapi/compiler/latest/linux/bin-llvm/llvm-nm")
+ set(CMAKE_AR "/opt/intel/oneapi/compiler/latest/bin/compiler/llvm-ar")
+ set(CMAKE_NM "/opt/intel/oneapi/compiler/latest/bin/compiler/llvm-ar")
 #set(CMAKE_RANLIB "/opt/intel/oneapi/compiler/latest/bin/compiler/llvm-ranlib")
 endif()
 #
 # set true if you use pybind11
-#set(PYBIND_EXPORT 1)
+set(PYBIND_EXPORT 1)
 
 # set base dir
 project(SparseSolv CXX)

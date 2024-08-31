@@ -18,7 +18,7 @@ SOURCES  = $(wildcard *.cpp)
 OBJECTS  = $(addprefix $(OBJDIR)/, $(SOURCES:.cpp=.o))
 
 #target file
-TARGET = ../libSparseJMS.a
+TARGET = ../libSparseSolv.a
 
 $(TARGET): $(OBJECTS) 
 	$(ARX) rcs $@ $^

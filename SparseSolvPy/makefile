@@ -1,16 +1,17 @@
 # MakeFile
 
 CXX = icpx
-ARX = llvm-ar
-CFLAGS = -O3 -std=c++14 -xhost -qopenmp -I./BasicDefines -I../ -fPIC  -I/opt/intel/oneapi/intelpython/latest/include  -I/opt/intel/oneapi/intelpython/latest/include/python3.9
-OPTS = -qmkl -ipo -shared
-LIBS = -L`/opt/intel/oneapi/intelpython/latest/bin/python3-config --cflags --ldflags` -L/opt/intel/oneapi/intelpython/latest/lib/
+#ARX = llvm-ar
+CFLAGS = -O3 -std=c++14 -xhost -qopenmp -I./BasicDefines -I../ -fPIC  -I/opt/anaconda3/include  -I/opt/anaconda3/include/python3.12 
+OPTS = -qmkl -ipo -shared 
+LIBS = -L/opt/anaconda3/lib/python3.12/config-3.12-x86_64-linux-gnu -L/opt/anaconda3/lib  -lpthread -ldl  -lutil -lm
+
 
 #CXX = g++
 #ARX = ar
-#CFLAGS = -O3 -std=c++14 -mavx2 -fopenmp -I./BasicDefines -I../ -fPIC
-#OPTS = -lgomp -shared
-#LIBS = -L../
+#CFLAGS = -O3 -std=c++14 -mavx2 -fopenmp -I./BasicDefines -I../ -fPIC  -I/opt/anaconda3/include  -I/opt/anaconda3/include/python3.12
+#OPTS =  -lgomp -shared
+#LIBS = `/opt/anaconda3/bin/python3-config --cflags --ldflags`
 
 OBJDIR = ./obj
 
@@ -18,10 +19,10 @@ SOURCES  = $(wildcard *.cpp)
 OBJECTS  = $(addprefix $(OBJDIR)/, $(SOURCES:.cpp=.o))
 
 #target file
-TARGET = ../SparseJMSPy.so
+TARGET = ../SparseSolvPy.so
 
 $(TARGET): $(OBJECTS) 
-	$(ARX) rcs $@ $^
+	$(CXX) -o $@ $^ $(LDFLAGS) $(LIBS) $(OPTS)
 $(OBJDIR)/%.o: %.cpp
 	@if [ ! -d $(OBJDIR) ]; \
 		then echo "mkdir -p $(OBJDIR)"; mkdir -p $(OBJDIR); \

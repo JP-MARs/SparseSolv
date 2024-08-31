@@ -9,11 +9,11 @@
 #define DEFINE_SET_VOX
 
 /* コイルの設定 */
-constexpr double COIL_MIN = (0.03);
-constexpr double COIL_MAX = (0.04);
-constexpr double COIL_Z = (0.02);
+constexpr double COIL_MIN = (0.007);
+constexpr double COIL_MAX = (0.009);
+constexpr double COIL_Z = (0.005);
 
-constexpr double IRON_Z = (0.04);
+constexpr double IRON_Z = (0.006);
 
 /* 磁性体の透磁率（線形計算用）*/
 /* set relativepermeability in iron region */

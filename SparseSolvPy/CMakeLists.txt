@@ -1,23 +1,26 @@
 project(SparseSolvPy CXX)
-# set base dir
+#出力先はベース
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${Basedir})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${Basedir})
 
-message("Pybind export in SparseSolv !") 
+message("Pybind export in SparseSolvPy !") 
 find_package(pybind11 REQUIRED)
 pybind11_add_module(SparseSolvPy 
   MODULE 
-    SparseMatPy.cpp
+    pybind_SparseMatPy.cpp
+    pybind_MatSolversPy.cpp
     SparseMat.cpp
     SparseMatC.cpp
     SparseMatOperators.cpp
+    MatSolvers_Base.cpp
     MatSolvers_ICCG.cpp
     MatSolvers_ICCOCG.cpp
+    MatSolvers_ICMRTR.cpp
+    MatSolvers_SGSMRTR.cpp
     MatSolvers_Eigen.cpp
     MatSolvers_MKL.cpp
     MatSolvers_ABMCICCG.cpp
 )
-
 # setting for old intel
 if(CMAKE_CXX_COMPILER MATCHES "icpc")
  message("Intel Classical Compiler use in SparseSolvPy !") 
@@ -42,5 +45,3 @@ else()
   target_compile_options(SparseSolvPy PUBLIC -std=c++14 -O3 -fopenmp -fPIC)
   target_link_libraries(SparseSolvPy PUBLIC  SparseSolv OpenMP::OpenMP_CXX)
 endif()
-
-

@@ -1,7 +1,7 @@
 ﻿
 #include "VoxelMesh.h"
 #include <fstream>
-#include <MatSolversICCG.hpp>
+#include <MatSolvers.hpp>
 
 using namespace std;
 
@@ -53,14 +53,15 @@ void VoxelFEM_Driver(VoxelMesh *mesh){
 	for(int i = 0 ; i < edge_size ; i++){
 		result[i] = 0;
 	}
-	SRLfem::MatSolversICCG iccg;
+	SRLfem::MatSolvers solver;
 	cout << "solve start " << endl;
 	//omp_set_num_threads(1);
-	iccg.setSaveLog(true);
-	iccg.solveICCG(all_size, EPS_SOLVER, MAX_ITR_ICCG, GA_IC, matA, RighthandVec, result);
+	solver.setSaveLog(true);
+	//solver.solveICCG(all_size, EPS_SOLVER, MAX_ITR_ICCG, GA_IC, matA, RighthandVec, result);
+	solver.solveSGSMRTR(all_size, EPS_SOLVER, MAX_ITR_ICCG, matA, RighthandVec, result);
 	cout << "solver end" << endl;
 	vector<double> log;
-	iccg.getResidualLog(log);
+	solver.getResidualLog(log);
 	fstream fp("residual_log.csv", std::ios::out);
 	for(int i = 0 ; i < log.size() ; i++){
 		fp << i << ", " << log[i] << endl;

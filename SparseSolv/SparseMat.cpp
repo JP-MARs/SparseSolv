@@ -8,66 +8,52 @@ namespace SRLfem{
 /*//=======================================================
 // ● コンストラクタ
 //=======================================================*/
-SparseMat::SparseMat(){
-	matrix = new SparseMatBaseD;
+/* Eigen疎行列指定 */
+SparseMat::SparseMat(const Eigen::SparseMatrix<double, Eigen::RowMajor>& Mat0){
+	matrix.initialize(Mat0);
 }
 /* サイズ指定 */
 SparseMat::SparseMat(slv_int x){
-	matrix = new SparseMatBaseD(x);
+	matrix.tempInitialize(x);
 }
 /* 作成済み疎行列データから初期化 */
 SparseMat::SparseMat(slv_int n_nonZero, const std::vector<slv_int>& rows, const std::vector<slv_int>& cols, const std::vector<double>& vals){
-	matrix = new SparseMatBaseD(n_nonZero, rows, cols, vals);
+	matrix.initialize(n_nonZero, rows, cols, vals);
 }
 
-
-/*//=======================================================
-// ● デストラクタ
-//=======================================================*/
-SparseMat::~SparseMat(){
-	delete matrix;
-}
 
 /*//=======================================================
 // ● コピーコンストラクタたち
 //=======================================================*/
 /* 同クラスコピー */
 SparseMat::SparseMat(const SparseMat& mat){
-	matrix = new SparseMatBaseD(*mat.matrix);
+	matrix = mat.matrix;
 }
 /* 同クラスムーブ */
 SparseMat::SparseMat(SparseMat&& mat) noexcept{
-	matrix = new SparseMatBaseD(std::move(*mat.matrix));
-	mat.matrix = nullptr;
+	matrix = std::move(mat.matrix);
 }
 /* 行列クラスコピー */
 SparseMat::SparseMat(const SparseMatBaseD& mat) {
-	matrix = new SparseMatBaseD(mat);
+	matrix = mat;
 }
 /* 行列クラスムーブ */
 SparseMat::SparseMat(SparseMatBaseD&& mat) noexcept {
-	matrix = new SparseMatBaseD(std::move(mat));
+	matrix =std::move(mat);
 }
 
 /*//=======================================================
 // ● 代入オペレータ
 //=======================================================*/
 SparseMat& SparseMat::operator=(const SparseMat& mat){
-	if(matrix != nullptr){
-		delete matrix;
-	}
-	*matrix = *mat.matrix;
+	matrix = mat.matrix;
 	return *this;
 }
 /*//=======================================================
 // ● ムーブオペレータ
 //=======================================================*/
 SparseMat& SparseMat::operator=(SparseMat&& mat) noexcept{
-	if(matrix != nullptr){
-		delete matrix;
-	}
-	*matrix = std::move(*mat.matrix);
-	mat.matrix = nullptr;
+	matrix = std::move(mat.matrix);
 	return *this;
 }
 
@@ -84,20 +70,30 @@ SparseMat& SparseMat::operator=(SparseMat&& mat) noexcept{
 //=======================================================*/
 double* SparseMat::operator*(const double* vec) const{
 	double* ans;
-	SparseMatOperators::mat_vec_product<SparseMatBaseD, double, double, double>(&ans, *(this->matrix), vec);
+	SparseMatOperators::mat_vec_product<SparseMatBaseD, double, double, double>(&ans, matrix, vec);
 	return ans;
 }
 dcomplex* SparseMat::operator*(const dcomplex* vec) const{
 	dcomplex* ans;
-	SparseMatOperators::mat_vec_product<SparseMatBaseD, double, dcomplex, dcomplex>(&ans, *(this->matrix), vec);
+	SparseMatOperators::mat_vec_product<SparseMatBaseD, double, dcomplex, dcomplex>(&ans, matrix, vec);
 	return ans;
 }
 Eigen::VectorXd SparseMat::operator*(const Eigen::VectorXd& vec) const{
-	Eigen::VectorXd ans = matrix->matrix * vec;
+	Eigen::VectorXd ans = matrix.matrix * vec;
 	return ans;
 }
 Eigen::VectorXcd SparseMat::operator*(const Eigen::VectorXcd& vec) const{
-	Eigen::VectorXcd ans = matrix->matrix * vec;
+	Eigen::VectorXcd ans = matrix.matrix * vec;
+	return ans;
+}
+std::vector<double> SparseMat::operator*(const std::vector<double>& vec) const{
+	std::vector<double> ans;
+	SparseMatOperators::mat_vec_product<SparseMatBaseD, double>(ans, matrix, vec);
+	return ans;
+}
+std::vector<dcomplex> SparseMat::operator*(const std::vector<dcomplex>& vec) const{
+	std::vector<dcomplex> ans;
+	SparseMatOperators::mat_vec_product<SparseMatBaseD>(ans, matrix, vec);
 	return ans;
 }
 
@@ -105,7 +101,7 @@ Eigen::VectorXcd SparseMat::operator*(const Eigen::VectorXcd& vec) const{
 // ● 行列スカラ積
 //=======================================================*/
 SparseMat SparseMat::operator*(const double x) const {
-	SparseMatBaseD mat_ori(*(this->matrix));
+	SparseMatBaseD mat_ori(matrix);
 	mat_ori *= x;
 	/* 結果を本体行列にムーブし、終わる */
 	SparseMat mat_ans(std::move(mat_ori));
@@ -113,7 +109,7 @@ SparseMat SparseMat::operator*(const double x) const {
 }
 SparseMatC SparseMat::operator*(const dcomplex x) const {
 	SparseMatBaseC mat_oriC;
-	SparseMatOperators::copyDtoC(mat_oriC, (*(this->matrix)));
+	SparseMatOperators::copyDtoC(mat_oriC, matrix);
 	mat_oriC *= x;
 	/* 結果を本体行列にムーブし、終わる */
 	SparseMatC mat_ans(std::move(mat_oriC));
@@ -124,17 +120,15 @@ SparseMatC SparseMat::operator*(const dcomplex x) const {
 // ● 行列-行列積
 //=======================================================*/
 SparseMat SparseMat::operator*(const SparseMat& mat) const {
-	Eigen::SparseMatrix<double, Eigen::RowMajor> tempMat = ((matrix->matrix) * (mat.matrix->matrix)).pruned();
+	Eigen::SparseMatrix<double, Eigen::RowMajor> tempMat = ( (matrix.matrix) * (mat.matrix.matrix) ).pruned();
 	SparseMatBaseD mat_ori(std::move(tempMat));
-	//SparseMatOperators::dot_operators<SparseMatBaseD, SparseMatBaseD, SparseMatBaseD, double, double>(mat_ori, *(this->matrix), *(mat.matrix));
 	/* 結果を本体行列にムーブし、終わる */
 	SparseMat mat_ans(std::move(mat_ori));
 	return mat_ans;
 }
 SparseMatC SparseMat::operator*(const SparseMatC& mat) const {
-	Eigen::SparseMatrix<dcomplex, Eigen::RowMajor> tempMat = ((matrix->matrix) * (mat.matrix->matrix)).pruned();
+	Eigen::SparseMatrix<dcomplex, Eigen::RowMajor> tempMat = ((matrix.matrix) * (mat.matrix.matrix)).pruned();
 	SparseMatBaseC mat_ori(std::move(tempMat));
-	//SparseMatOperators::dot_operators<SparseMatBaseD, SparseMatBaseC, SparseMatBaseC, double, dcomplex>(mat_ori, *(this->matrix), *(mat.matrix));
 	/* 結果を本体行列にムーブし、終わる */
 	SparseMatC mat_ans(std::move(mat_ori));
 	return mat_ans;
@@ -144,16 +138,15 @@ SparseMatC SparseMat::operator*(const SparseMatC& mat) const {
 // ● 行列-行列和
 //=======================================================*/
 SparseMat SparseMat::operator+(const SparseMat& mat) const {
-	Eigen::SparseMatrix<double, Eigen::RowMajor> tempMat = (matrix->matrix) + (mat.matrix->matrix);
+	Eigen::SparseMatrix<double, Eigen::RowMajor> tempMat = (matrix.matrix) + (mat.matrix.matrix);
 	SparseMatBaseD mat_ori(std::move(tempMat));
-	//SparseMatOperators::plus_operators<SparseMatBaseD, SparseMatBaseD, SparseMatBaseD, double, double>(mat_ori, *(this->matrix), *(mat.matrix), 1, 1, 0, 0);
 	/* 結果を本体行列にムーブし、終わる */
 	SparseMat mat_ans(std::move(mat_ori));
 	return mat_ans;
 }
 SparseMatC SparseMat::operator+(const SparseMatC& mat) const {
 	SparseMatBaseC mat_ori;
-	SparseMatOperators::plus_operators<SparseMatBaseC, SparseMatBaseD, SparseMatBaseC, dcomplex, double>(mat_ori, *(mat.matrix), *matrix, 1.0, 1.0, 0, 0);
+	SparseMatOperators::plus_operators<SparseMatBaseC, SparseMatBaseD, SparseMatBaseC, dcomplex, double>(mat_ori, mat.matrix, matrix, 1.0, 1.0, 0, 0);
 	/* 結果を本体行列にムーブし、終わる */
 	SparseMatC mat_ans(std::move(mat_ori));
 	return mat_ans;
@@ -169,7 +162,7 @@ SparseMatC SparseMat::operator+(const SparseMatC& mat) const {
 // ● 転置
 //=======================================================*/
 SparseMat SparseMat::trans() const {
-	SparseMatBaseD mat_ori(matrix->matrix.transpose());
+	SparseMatBaseD mat_ori(matrix.matrix.transpose());
 	/* 結果を本体行列にムーブし、終わる */
 	SparseMat mat_ans(std::move(mat_ori));
 	return mat_ans;
@@ -179,7 +172,7 @@ SparseMat SparseMat::trans() const {
 //=======================================================*/
 SparseMat SparseMat::makeSubMat(slv_int range1a, slv_int range1b, slv_int range2a, slv_int range2b) {
 	SparseMatBaseD mat_ori;
-	SparseMatOperators::makeSubMat<SparseMatBaseD, double>(mat_ori, *(this->matrix), range1a, range1b, range2a, range2b);
+	SparseMatOperators::makeSubMat<SparseMatBaseD, double>(mat_ori, matrix, range1a, range1b, range2a, range2b);
 	/* 結果を本体行列にムーブし、終わる */
 	SparseMat mat_ans(std::move(mat_ori));
 	return mat_ans;
@@ -191,10 +184,10 @@ SparseMat SparseMat::makeSubMat(slv_int range1a, slv_int range1b, slv_int range2
 void SparseMat::MatDiv(SparseMat& matK11, SparseMat& matK12, slv_int rangeA, slv_int rangeB) {
 	SparseMatBaseD mat_ori1;
 	SparseMatBaseD mat_ori2;
-	SparseMatOperators::MatDiv<SparseMatBaseD, double>(*(this->matrix), mat_ori1, mat_ori2, rangeA, rangeB);
+	SparseMatOperators::MatDiv<SparseMatBaseD, double>(matrix, mat_ori1, mat_ori2, rangeA, rangeB);
 	/* 結果を本体行列にムーブし、終わる */
-	*(matK11.matrix) = std::move(mat_ori1);
-	*(matK12.matrix) = std::move(mat_ori2);
+	matK11.matrix = std::move(mat_ori1);
+	matK12.matrix = std::move(mat_ori2);
 }
 
 /*//=======================================================
@@ -202,7 +195,7 @@ void SparseMat::MatDiv(SparseMat& matK11, SparseMat& matK12, slv_int rangeA, slv
 //=======================================================*/
 SparseMat SparseMat::getMatLower() const {
 	SparseMatBaseD mat_ori;
-	SparseMatOperators::getMatLower<SparseMatBaseD, double>(mat_ori, *(this->matrix));
+	SparseMatOperators::getMatLower<SparseMatBaseD, double>(mat_ori, matrix);
 	/* 結果を本体行列にムーブし、終わる */
 	SparseMat mat_ans(std::move(mat_ori));
 	return mat_ans;
@@ -212,7 +205,7 @@ SparseMat SparseMat::getMatLower() const {
 //=======================================================*/
 SparseMat SparseMat::getMatUpper() const {
 	SparseMatBaseD mat_ori;
-	SparseMatOperators::getMatUpper<SparseMatBaseD, double>(mat_ori, *(this->matrix));
+	SparseMatOperators::getMatUpper<SparseMatBaseD, double>(mat_ori, matrix);
 	/* 結果を本体行列にムーブし、終わる */
 	SparseMat mat_ans(std::move(mat_ori));
 	return mat_ans;
@@ -223,7 +216,7 @@ SparseMat SparseMat::getMatUpper() const {
 //=======================================================*/
 SparseMat SparseMat::inv() const{
 	SparseMatBaseD mat_ori;
-	SparseMatOperators::MatInv<SparseMatBaseD, double, Eigen::MatrixXd>(mat_ori, *(this->matrix));
+	SparseMatOperators::MatInv<SparseMatBaseD, double, Eigen::MatrixXd>(mat_ori, matrix);
 	/* 結果を本体行列にムーブし、終わる */
 	SparseMat mat_ans(std::move(mat_ori));
 	return mat_ans;
@@ -234,8 +227,8 @@ SparseMat SparseMat::inv() const{
 //=======================================================*/
 void SparseMat::round(){
 	/* ポインタをたどって探す */
-	auto val_ptr = matrix->matrix.valuePtr();
-	const slv_int total_size = matrix->matrix.nonZeros();
+	auto val_ptr = matrix.matrix.valuePtr();
+	const slv_int total_size = matrix.matrix.nonZeros();
 	for(slv_int i = 0; i < total_size; i++) {
 		double val = val_ptr[i];
 		if(val >= 0.0){
@@ -252,7 +245,7 @@ void SparseMat::round(){
 //=======================================================*/
 SparseMat SparseMat::makePrsdInv(double eps) const{
 	SparseMatBaseD mat_ori;
-	SparseMatOperators::AtA_eps<SparseMatBaseD, double>(mat_ori, *(this->matrix), eps);
+	SparseMatOperators::AtA_eps<SparseMatBaseD, double>(mat_ori, matrix, eps);
 	SparseMat mat_ans(std::move(mat_ori));
 	return mat_ans;
 }
@@ -263,13 +256,22 @@ SparseMat SparseMat::makePrsdInv(double eps) const{
 //=======================================================*/
 SparseMat SparseMat::IC_decomp(double* diagD, const double accela) const{
 	SparseMatBaseD mat_ori;
-	SparseMatOperators::IC_decomp<SparseMatBaseD, double>(mat_ori, *(this->matrix), diagD, accela);
+	SparseMatOperators::IC_decomp<SparseMatBaseD, double, double>(mat_ori, matrix, diagD, accela);
 	/* 結果を本体行列にムーブし、終わる */
 	SparseMat mat_ans(std::move(mat_ori));
 	return mat_ans;
 }
 
-
+/*//=======================================================
+// ● 対角スケーリング
+//=======================================================*/
+SparseMat SparseMat::diagScaling(double* trans_vec, const double* ori_vec) const{
+	SparseMatBaseD mat_ori;
+	SparseMatOperators::diagScaling<SparseMatBaseD, double, double>(mat_ori, matrix, trans_vec, ori_vec);
+	/* 結果を本体行列にムーブし、終わる */
+	SparseMat mat_ans(std::move(mat_ori));
+	return mat_ans;
+}
 
 
 /* end of namespace */

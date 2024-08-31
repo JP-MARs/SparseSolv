@@ -1,4 +1,4 @@
-﻿#include "MatSolversICCG.hpp"
+﻿#include "MatSolvers.hpp"
 #include <queue>
 
 /*
@@ -22,7 +22,7 @@ namespace SRLfem{
 //
 // Sort by Algebraic Multi-Color Ordering
 //
-void MatSolversICCG::sortAlgebraicMultiColor(slv_int size0, const SparseMatBaseD &A, SparseMatBaseD &PA, const double *b, double *Pb, std::vector<std::vector<int>> &color_list, std::vector<int> &ordering, std::vector<int> &reverse_ordering, int num_colors)
+void MatSolvers::sortAlgebraicMultiColor(slv_int size0, const SparseMatBaseD &A, SparseMatBaseD &PA, const double *b, double *Pb, std::vector<std::vector<int>> &color_list, std::vector<int> &ordering, std::vector<int> &reverse_ordering, int num_colors)
 {
     const slv_int numRow = size0;
     int num_colors_ = num_colors;
@@ -85,7 +85,7 @@ void MatSolversICCG::sortAlgebraicMultiColor(slv_int size0, const SparseMatBaseD
 
     for (slv_int i = 0; i < numRow; i++)
     {
-        slv_int numNZ = end_pos[i] - start_pos[i];
+        //slv_int numNZ = end_pos[i] - start_pos[i];
         for (slv_int mu = start_pos[i]; mu < end_pos[i]; mu++)
         {
             PA.add(ordering[i], ordering[col_ptr[mu]], val_ptr[mu]);
@@ -98,7 +98,7 @@ void MatSolversICCG::sortAlgebraicMultiColor(slv_int size0, const SparseMatBaseD
 //
 // Make Algebraic Block
 //
-void MatSolversICCG::makeAlgebraicBlock(slv_int size0, const SparseMatBaseD &A,
+void MatSolvers::makeAlgebraicBlock(slv_int size0, const SparseMatBaseD &A,
                                         SparseMatBaseD &Mb,
                                         std::vector<std::vector<int>> &block_list,
                                         int num_blocks)
@@ -108,7 +108,7 @@ void MatSolversICCG::makeAlgebraicBlock(slv_int size0, const SparseMatBaseD &A,
     block_list.resize(max_block);
 
     auto col_ptr = A.getColPtr();
-    auto val_ptr = A.getValuePtr();
+    //auto val_ptr = A.getValuePtr();
     slv_int *start_pos = new slv_int[numRow];
     slv_int *end_pos = new slv_int[numRow];
     A.getCols(start_pos, end_pos);
@@ -170,7 +170,7 @@ void MatSolversICCG::makeAlgebraicBlock(slv_int size0, const SparseMatBaseD &A,
 //
 // Sort by Algebraic Block Multi-Color Ordering
 //
-void MatSolversICCG::sortAlgebraicBlockMultiColor(slv_int size0,
+void MatSolvers::sortAlgebraicBlockMultiColor(slv_int size0,
                                                     const SparseMatBaseD &A,
                                                     SparseMatBaseD &PA,
                                                     const double *b,
@@ -244,7 +244,7 @@ void MatSolversICCG::sortAlgebraicBlockMultiColor(slv_int size0,
 
 
 /* Conjugate gradient method for ICCG parallelized by ABMC ordering*/
-bool MatSolversICCG::parallelIccgSolv(slv_int size0,
+bool MatSolvers::parallelIccgSolv(slv_int size0,
                                         const SparseMatBaseD &A,
                                         const SparseMatBaseD &L,
                                         const SparseMatBaseD &Lt,
@@ -469,7 +469,7 @@ bool MatSolversICCG::parallelIccgSolv(slv_int size0,
 }
 
 /* *********************************************************** */
-void MatSolversICCG::parallelIcSolv(slv_int size0, const SparseMatBaseD &L, const SparseMatBaseD &Lt, std::vector<std::vector<slv_int>> &block_list, std::vector<std::vector<slv_int>> &color_list,
+void MatSolvers::parallelIcSolv(slv_int size0, const SparseMatBaseD &L, const SparseMatBaseD &Lt, std::vector<std::vector<slv_int>> &block_list, std::vector<std::vector<slv_int>> &color_list,
                                     const double *diagD, const Eigen::VectorXd &b, Eigen::VectorXd &x)
 {
     //
@@ -479,7 +479,7 @@ void MatSolversICCG::parallelIcSolv(slv_int size0, const SparseMatBaseD &L, cons
     //             LDLt is incomplete Cholesky decomposition
     //             arranged by ICDCMP
     //
-    /*     ver. 1.00 2024.2.21  S. Hiruma
+    /*     ver. 1.00 2024.2.21  S. Hiruma */
     /* *********************************************************** */
     slv_int n, k, l, mu, nu;
     slv_int col;
@@ -489,7 +489,7 @@ void MatSolversICCG::parallelIcSolv(slv_int size0, const SparseMatBaseD &L, cons
     double *y;
     //slv_int *columnP;
     //double *valueP;
-    slv_int numNZ;
+    //slv_int numNZ;
 
     n = size0;
 
@@ -574,7 +574,7 @@ void MatSolversICCG::parallelIcSolv(slv_int size0, const SparseMatBaseD &L, cons
 // ABMC ICCG method -- main Part: call this from other program !
 //
 // 
-bool MatSolversICCG::solveICCGwithABMC(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMat& matA,
+bool MatSolvers::solveICCGwithABMC(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMat& matA,
     const double* vec_b, double* vec_x, int num_blocks, int num_colors, bool init){
 
     const slv_int size = size0;
@@ -590,7 +590,7 @@ bool MatSolversICCG::solveICCGwithABMC(const slv_int size0, const double conv_cr
 }
 
 //
-bool MatSolversICCG::solveICCGwithABMC(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const double normB, const SparseMat &matA, const double *vec_b, double *vec_x, int num_blocks, int num_colors, bool init)
+bool MatSolvers::solveICCGwithABMC(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const double normB, const SparseMat &matA, const double *vec_b, double *vec_x, int num_blocks, int num_colors, bool init)
 {
     bool is_conv = false;
 
@@ -619,17 +619,19 @@ bool MatSolversICCG::solveICCGwithABMC(const slv_int size0, const double conv_cr
     std::vector<slv_int> ordering;
     std::vector<slv_int> reverse_ordering;
 
-    MatSolversICCG::sortAlgebraicBlockMultiColor(n, *(matA.matrix), *(PA.matrix), vec_b, vec_Pb, block_list, color_list, ordering, reverse_ordering, num_blocks, num_colors);
+    sortAlgebraicBlockMultiColor(n, matA.matrix, PA.matrix, vec_b, vec_Pb, block_list, color_list, ordering, reverse_ordering, num_blocks, num_colors);
     PA.fix();
 
+    /* ======================================= */
     double *diagD = new double[n];
     double accela_val = accera;
     /* acce < 0 : autoamtic determin  */
+    SparseMat matL;
     if(accera < -1){
         accela_val = 1.05;
         /* plus acce until diag > 0 */
         for(int kkk = 0; kkk < 10; kkk++){
-            SparseMat matL0 = PA.IC_decomp(diagD, accela_val);
+            matL = PA.IC_decomp(diagD, accela_val);
             bool ok = true;
             for(slv_int i = 0; i < size0; i++){
                 ok &= (diagD[i] > 0);
@@ -639,13 +641,14 @@ bool MatSolversICCG::solveICCGwithABMC(const slv_int size0, const double conv_cr
             }
             accela_val += 0.05;
         }
+    } else{
+        matL = PA.IC_decomp(diagD, accera);
     }
     /* fix matL */
-    SparseMat matL = PA.IC_decomp(diagD, accela_val);
     SparseMat matL_tr = matL.trans();
-    
+    /* ======================================= */
     //Solve main
-    is_conv = MatSolversICCG::parallelIccgSolv(n, *(PA.matrix), *(matL.matrix), *(matL_tr.matrix), block_list, color_list, diagD, vec_Pb, vec_x, epsilon, max_ite);
+    is_conv = parallelIccgSolv(n, PA.matrix, matL.matrix, matL_tr.matrix, block_list, color_list, diagD, vec_Pb, vec_x, epsilon, max_ite);
 
     for (slv_int i = 0; i < n; i++)
     {
@@ -667,7 +670,7 @@ bool MatSolversICCG::solveICCGwithABMC(const slv_int size0, const double conv_cr
 //
 // ABMC ICCG method -- input vecB is vector
 //
-bool MatSolversICCG::solveICCGwithABMC(const slv_int size0, const double conv_cri,  const int max_ite, const double accera, const SparseMat &matA, 
+bool MatSolvers::solveICCGwithABMC(const slv_int size0, const double conv_cri,  const int max_ite, const double accera, const SparseMat &matA, 
                        const std::vector<double>& vec_b, std::vector<double>& vec_x, int num_blocks, int num_colors, bool init){
 //
     double* vecBa = new double[size0];

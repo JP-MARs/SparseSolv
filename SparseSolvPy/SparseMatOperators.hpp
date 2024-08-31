@@ -25,6 +25,16 @@ private:
 	/* 行列ベクトル積 */
 	template<typename Mat1, typename DType1, typename DType2, typename DType3> 
 	static void mat_vec_product(DType3** ans, const Mat1& matA, const DType2* const vec);
+	/* 行列ベクトル積(std::vectorとの) */
+	template<typename Mat1, typename DType3> 
+	static void mat_vec_product(std::vector<DType3>& ans, const Mat1& matA, const std::vector<double>& vec);
+	template<typename Mat1> 
+	static void mat_vec_product(std::vector<dcomplex>& ans, const Mat1& matA, const std::vector<dcomplex>& vec);
+	/* 行列ベクトル積(std::vectorと。結果はEigen) */
+	template<typename Mat1, typename DType3> 
+	static void mat_vec_product(DType3& ans, const Mat1& matA, const std::vector<double>& vec);
+	template<typename Mat1> 
+	static void mat_vec_product(Eigen::VectorXcd& ans, const Mat1& matA, const std::vector<dcomplex>& vec);
 	/* 足し算オペレータ(matAにmatBを加える(a1*A+a2*B)。Bの位置を行方向にpos1、列方向にpos2だけずらす。) */
 	template<typename Mat1, typename Mat2, typename Mat3, typename DType1, typename DType2> 
 	static void plus_operators(Mat3& mat3, const Mat1& matA, const Mat2& matB, double a1, double a2, slv_int pos1, slv_int pos2);
@@ -55,6 +65,11 @@ private:
 	/* 不完全コレスキー分解 */
 	template<typename Mat1, typename DType1, typename DTypeD>
 	static void IC_decomp(Mat1& mat_ans, const Mat1& mat1, DTypeD* diagD, const double accela);
+	/**/
+	/* 対角スケーリング */
+	template<typename Mat1, typename DType1, typename DTypeD>
+	static void diagScaling(Mat1& mat_ans, const Mat1& mat1, DTypeD* trans_vec, const DTypeD* ori_vec);
+	/**/
 	/* A^T*A + epsIを作る（疑似逆行列用） */
 	template<typename Mat1, typename DType1>
 	static void AtA_eps(Mat1& mat_ans, const Mat1& mat1, double eps);
@@ -154,6 +169,61 @@ void SparseMatOperators::mat_vec_product(DType3** ans, const Mat1& matA, const D
 }
 
 /*//=======================================================
+// ● 行列ベクトル積(std::vectorとの)
+//=======================================================*/
+template<typename Mat1, typename DType3> 
+void SparseMatOperators::mat_vec_product(std::vector<DType3>& ans, const Mat1& matA, const std::vector<double>& vec){
+	const slv_int the_size = vec.size();
+	Eigen::VectorXd vecE(the_size);
+	for(slv_int i = 0; i < the_size; i++){
+		vecE(i) = vec[i];
+	}
+	Eigen::VectorXd vec_new = matA.matrix*vecE;
+	ans.resize(the_size);
+	for(slv_int i = 0; i < the_size; i++){
+		ans[i] = vec_new(i);
+	}
+}
+template<typename Mat1> 
+void SparseMatOperators::mat_vec_product(std::vector<dcomplex>& ans, const Mat1& matA, const std::vector<dcomplex>& vec){
+	const slv_int the_size = vec.size();
+	Eigen::VectorXcd vecE(the_size);
+	for(slv_int i = 0; i < the_size; i++){
+		vecE(i) = vec[i];
+	}
+	Eigen::VectorXcd vec_new = matA.matrix*vecE;
+	ans.resize(the_size);
+	for(slv_int i = 0; i < the_size; i++){
+		ans[i] = vec_new(i);
+	}
+}
+
+
+/*//=======================================================
+// ● 行列ベクトル積(std::vectorと。結果はEigen)
+//=======================================================*/
+template<typename Mat1, typename DType3> 
+void SparseMatOperators::mat_vec_product(DType3& ans, const Mat1& matA, const std::vector<double>& vec){
+	const slv_int the_size = vec.size();
+	Eigen::VectorXd vecE(the_size);
+	for(slv_int i = 0; i < the_size; i++){
+		vecE(i) = vec[i];
+	}
+	ans = matA.matrix*vecE;
+}
+
+template<typename Mat1> 
+void SparseMatOperators::mat_vec_product(Eigen::VectorXcd& ans, const Mat1& matA, const std::vector<dcomplex>& vec){
+	const slv_int the_size = vec.size();
+	Eigen::VectorXcd vecE(the_size);
+	for(slv_int i = 0; i < the_size; i++){
+		vecE(i) = vec[i];
+	}
+	ans = matA.matrix*vecE;
+}
+
+
+/*//=======================================================
 // ● 足し算オペレータ(matAにmatBを加える(a1*A+a2*B)。Bの位置を行方向にpos1、列方向にpos2だけずらす。)
 //=======================================================*/
 template<typename Mat1, typename Mat2, typename Mat3, typename DType1, typename DType2> 
@@ -164,7 +234,7 @@ void SparseMatOperators::plus_operators(Mat3& mat3, const Mat1& matA, const Mat2
 	const slv_int max = (size1 > size2+pos1 ? size1 : size2+pos1);
 
 	/* 足した後の行列 */
-	Mat3* matAB = new Mat3(max);
+	Mat3 matAB(max);
 
 	/* まずAを足す */
 	slv_int* start_pos1 = new slv_int[size1];
@@ -182,7 +252,7 @@ void SparseMatOperators::plus_operators(Mat3& mat3, const Mat1& matA, const Mat2
 			slv_int col = col_ptr1[aj];
 			DType1 avalue = val_ptr1[aj];
 			avalue *= a1;
-			matAB->add(i, col, avalue);
+			matAB.add(i, col, avalue);
 		}
 	}
 	delete[] start_pos1;
@@ -204,16 +274,15 @@ void SparseMatOperators::plus_operators(Mat3& mat3, const Mat1& matA, const Mat2
 			slv_int col = col_ptr2[aj];
 			DType2 avalue = val_ptr2[aj];
 			avalue *= a2;
-			matAB->add(i+pos1, col+pos2, avalue);
+			matAB.add(i+pos1, col+pos2, avalue);
 		}
 	}
 	delete[] start_pos2;
 	delete[] end_pos2;
 
 	/* 確定させ、ムーブする */
-	matAB->fix();
-	mat3 = std::move(*matAB);
-	delete matAB;
+	matAB.fix();
+	mat3 = std::move(matAB);
 }
 
 /*//=======================================================
@@ -229,14 +298,14 @@ void SparseMatOperators::MatSelfPlus(Mat1& matA, const Mat2& matB, const DType3 
 		auto col_ptr1 = matA.getColPtr();
 		auto val_ptr1 = matA.getValuePtr();
 
-		Mat1 *tempA = new Mat1(max_size);
+		Mat1 tempA(max_size);
 		/* まず自身をコピー */
 		for(int i=0 ; i < matA.size ; i++){
 			const slv_int the_size0 = end_pos1[i];
 			for(slv_int aj = start_pos1[i] ; aj < the_size0 ; aj++){
 				slv_int row = col_ptr1[aj];
 				DType1 avalue = val_ptr1[aj];
-				tempA->add(i, row, avalue);
+				tempA.add(i, row, avalue);
 			}
 		}
 		delete[] start_pos1;
@@ -256,15 +325,14 @@ void SparseMatOperators::MatSelfPlus(Mat1& matA, const Mat2& matB, const DType3 
 				slv_int row = col_ptr2[aj];
 				DType2 avalue = val_ptr2[aj];
 				avalue *= a1;
-				tempA->add(i+pos1, row+pos2, avalue);
+				tempA.add(i+pos1, row+pos2, avalue);
 			}
 		}
 		delete[] start_pos2;
 		delete[] end_pos2;
 		/* 確定 */
-		tempA->refresh();
-		matA = std::move(*tempA);
-		delete tempA;
+		tempA.refresh();
+		matA = std::move(tempA);
 	}else{
 		const slv_int size2 = matB.size;
 		slv_int* start_pos2 = new slv_int[size2];
@@ -396,7 +464,7 @@ template<typename Mat1, typename DType>
 void SparseMatOperators::makeSubMat(Mat1& mat_ans, const Mat1& targetMat, slv_int range1a, slv_int range1b, slv_int range2a, slv_int range2b){
 	const slv_int the_size = targetMat.size;
 	const slv_int new_size = range1b-range1a + 1;
-	Mat1* tempB = new Mat1(new_size);
+	Mat1 tempB(new_size);
 
 	slv_int* start_pos1 = new slv_int[the_size];
 	slv_int* end_pos1 = new slv_int[the_size];
@@ -410,7 +478,7 @@ void SparseMatOperators::makeSubMat(Mat1& mat_ans, const Mat1& targetMat, slv_in
 				slv_int col = col_ptr1[j];
 				if(range2a <= col && col <= range2b){
 					DType val = val_ptr1[j];
-					tempB->add(i-range1a, col-range2a, val);
+					tempB.add(i-range1a, col-range2a, val);
 				}
 			}
 		}
@@ -418,9 +486,8 @@ void SparseMatOperators::makeSubMat(Mat1& mat_ans, const Mat1& targetMat, slv_in
 	delete[] start_pos1;
 	delete[] end_pos1;
 	/* 確定させて引き渡す */
-	tempB->fix();
-	mat_ans = std::move(*tempB);
-	delete tempB;
+	tempB.fix();
+	mat_ans = std::move(tempB);
 }
 
 /*//=======================================================
@@ -443,28 +510,26 @@ void SparseMatOperators::MatDiv(const Mat1& targetMat, Mat1& matK11, Mat1& matK1
 	auto col_ptr1 = targetMat.getColPtr();
 	auto val_ptr1 = targetMat.getValuePtr();
 
-	Mat1* tempK11 = new Mat1(min_gyo);
-	Mat1* tempK12 = new Mat1(min_gyo);
+	Mat1 tempK11(min_gyo);
+	Mat1 tempK12(min_gyo);
 	for(slv_int i = 0 ; i < min_gyo ; i++){
 		const slv_int col_size = end_pos1[i];
 		for(slv_int j = start_pos1[i] ; j < col_size ; j++){
 			slv_int col = col_ptr1[j];
 			DType val = val_ptr1[j];
 			if(col <= rangeB){
-				tempK11->add(i, col, val);
+				tempK11.add(i, col, val);
 			}else{
-				tempK12->add(i, col, val);
+				tempK12.add(i, col, val);
 			}
 		}
 	}
 	delete[] start_pos1;
 	delete[] end_pos1;
-	tempK11->fix();
-	tempK12->fix();
-	matK11 = std::move(*tempK11);
-	matK12 = std::move(*tempK12);
-	delete tempK11;
-	delete tempK12;
+	tempK11.fix();
+	tempK12.fix();
+	matK11 = std::move(tempK11);
+	matK12 = std::move(tempK12);
 }
 
 /*//=======================================================
@@ -473,7 +538,7 @@ void SparseMatOperators::MatDiv(const Mat1& targetMat, Mat1& matK11, Mat1& matK1
 template<typename Mat1, typename DType>
 void SparseMatOperators::getMatLower(Mat1& ans_mat, const Mat1& targetMat){
 	const slv_int the_size = targetMat.size;
-	Mat1* tempMat = new Mat1(the_size);
+	Mat1 tempMat(the_size);
 
 	slv_int* start_pos1 = new slv_int[the_size];
 	slv_int* end_pos1 = new slv_int[the_size];
@@ -510,14 +575,13 @@ void SparseMatOperators::getMatLower(Mat1& ans_mat, const Mat1& targetMat){
 	for (slv_int i = 0; i < the_size; i++) {
 		const slv_int the_size2 = temp_col_size[i];//tempMat->column_size[i];
 		for(slv_int j = start_pos1[i] ; j < the_size2 ; j++){
-			tempMat->add(i, col_ptr1[j], val_ptr1[j]);
+			tempMat.add(i, col_ptr1[j], val_ptr1[j]);
 		}
 	}
 	delete[] start_pos1;
 	delete[] end_pos1;
-	tempMat->fix();
-	ans_mat = std::move(*tempMat);
-	delete tempMat;
+	tempMat.fix();
+	ans_mat = std::move(tempMat);
 }
 
 /*//=======================================================
@@ -526,7 +590,7 @@ void SparseMatOperators::getMatLower(Mat1& ans_mat, const Mat1& targetMat){
 template<typename Mat1, typename DType>
 void SparseMatOperators::getMatUpper(Mat1& ans_mat, const Mat1& targetMat){
 	const slv_int the_size = targetMat.size;
-	Mat1* tempMat = new Mat1(the_size);
+	Mat1 tempMat(the_size);
 
 	slv_int* start_pos1 = new slv_int[the_size];
 	slv_int* end_pos1 = new slv_int[the_size];
@@ -560,15 +624,14 @@ void SparseMatOperators::getMatUpper(Mat1& ans_mat, const Mat1& targetMat){
 		const slv_int the_size2 = temp_col_size[i];//tempMat->column_size[i];
 		if(the_size2 > -1){
 			for(slv_int j = the_size2; j < the_temp_col_num; j++) {
-				tempMat->add(i, col_ptr1[j], val_ptr1[j]);
+				tempMat.add(i, col_ptr1[j], val_ptr1[j]);
 			}
 		}
 	}
 	delete[] start_pos1;
 	delete[] end_pos1;
-	tempMat->fix();
-	ans_mat = std::move(*tempMat);
-	delete tempMat;
+	tempMat.fix();
+	ans_mat = std::move(tempMat);
 }
 
 /*//=======================================================
@@ -581,20 +644,18 @@ void SparseMatOperators::MatInv(Mat1& ans_mat, const Mat1& targetMat){
 	MType tempMat0 = targetMat.matrix;
 	MType tempMat2 = tempMat0.inverse();
 	/* スパース形式に代入し、渡す */
-	Mat1* tempMat = new Mat1(the_size);
+	Mat1 tempMat(the_size);
 	for(slv_int i = 0 ; i < the_size ; i++){
 		for(slv_int j = 0 ; j < the_size ; j++){
 			DType value = tempMat2(i, j);
 			double abs_val = abs(value);
 			if(abs_val > 1.0e-12){
-				tempMat->add(i, j, value);
+				tempMat.add(i, j, value);
 			}
 		}
 	}
-	tempMat->fix();
-	ans_mat = std::move(*tempMat);
-
-	delete tempMat;
+	tempMat.fix();
+	ans_mat = std::move(tempMat);
 }
 
 
@@ -664,6 +725,12 @@ void SparseMatOperators::IC_decomp(Mat1& mat_ans, const Mat1& mat1, DTypeD* diag
 			//tempMat->matrix[i][jj] = s;
 		}
 		const slv_int last = end_pos1[i] - 1;
+		//std::cout << "diag " << i << ", " << last << ", "<< col_ptr1[last] << std::endl;
+		/* もし対角が無ければエラーで落とす */
+		if(col_ptr1[last] != i){
+			std::cout << "there is not diagonal element! "<< std::endl;
+			exit(1);
+		}
 		s = val_ptr1[last] * accela;
 		//slv_int * IC_ptr = tempMat->column[i];
 		//DType1 *IL_ptr = tempMat->matrix[i];
@@ -691,6 +758,60 @@ void SparseMatOperators::IC_decomp(Mat1& mat_ans, const Mat1& mat1, DTypeD* diag
 	//delete tempMat;
 }
 
+
+/*//=======================================================
+// ● 対角スケーリング
+//=======================================================*/
+template<typename Mat1, typename DType1, typename DTypeD>
+void SparseMatOperators::diagScaling(Mat1& mat_ans, const Mat1& mat1, DTypeD* trans_vec, const DTypeD* ori_vec){
+	if(!mat1.is_fix || mat1.tempMat != nullptr ){
+		std::cout << "Error ! target mat in disgScale must be clear!"<< std::endl;
+		getchar();
+		exit(1);
+	}
+	const slv_int the_size = mat1.size;
+
+	/* この行列の下三角部分だけ持ってくる */
+	Mat1 tempMat(the_size);
+
+	slv_int* start_pos1 = new slv_int[the_size];
+	slv_int* end_pos1 = new slv_int[the_size];
+	mat1.getCols(start_pos1, end_pos1);
+	auto col_ptr1 = mat1.getColPtr();
+	auto val_ptr1 = mat1.getValuePtr();
+
+	for (slv_int i = 0; i < the_size; i++) {
+		/* i行目にある非ゼロの数をゲット */
+		const slv_int c_size = end_pos1[i];
+		/* i行目の非ゼロの回数だけ列ループをまわす */
+		for(slv_int jj = start_pos1[i]; jj < c_size; jj++) {
+			/* 対角位置なら処理 */
+			if(col_ptr1[jj] == i){
+				DType1 temp1 = sqrt(val_ptr1[jj]);
+				DType1 temp2;
+				try{
+					temp2 = 1.0 / temp1;
+				}
+				catch(...){
+					temp2 = 1.0 / (DBL_EPSILON);
+				}
+				tempMat.add(i, i, temp2);
+				/* 右辺も更新 */
+				trans_vec[i] = ori_vec[i] * temp2;
+				break;
+			}
+		}
+	}
+	tempMat.fix();
+
+	delete[] start_pos1;
+	delete[] end_pos1;
+	/* コピーして終わる */
+	mat_ans = std::move(tempMat);
+}
+
+
+
 /*//=======================================================
 // ● A^T*A + epsIを作る（疑似逆行列用）
 //=======================================================*/
@@ -705,7 +826,7 @@ void SparseMatOperators::AtA_eps(Mat1& mat_ans, const Mat1& mat1, double eps){
 
 	const slv_int new_size = 1 + mat1.getMaxCol();
 	/* まずA^TとAをかける */
-	Mat1* mat_AtA = new Mat1(new_size);	
+	Mat1 mat_AtA(new_size);	
 
 	for(slv_int i = 0 ; i < size1 ; i++){
 		const slv_int the_size = end_pos1[i];
@@ -718,7 +839,7 @@ void SparseMatOperators::AtA_eps(Mat1& mat_ans, const Mat1& mat1, double eps){
 			for(slv_int bj = start_pos1[i] ; bj < the_sizeb ; bj++){
 				slv_int rowB = col_ptr1[bj];
 				DType1 bvalue = val_ptr1[bj];
-				mat_AtA->add(row, rowB, avalue*bvalue);
+				mat_AtA.add(row, rowB, avalue*bvalue);
 			}
 		}
 	}
@@ -727,11 +848,10 @@ void SparseMatOperators::AtA_eps(Mat1& mat_ans, const Mat1& mat1, double eps){
 
 	/* 最後に対角項を足す */
 	for(slv_int i = 0 ; i <new_size ; i++){
-		mat_AtA->add(i, i, eps);
+		mat_AtA.add(i, i, eps);
 	}
-	mat_AtA->fix();
-	mat_ans = std::move(*mat_AtA);
-	delete mat_AtA;
+	mat_AtA.fix();
+	mat_ans = std::move(mat_AtA);
 }
 
 
@@ -754,7 +874,7 @@ void SparseMatOperators::PlusMinusShiftFix(Mat0& matAB, const Mat1& matA, const 
 
 	const slv_int size1 = matA.size;
 	const slv_int size2 = matB.size;
-	const slv_int max = (size1 > size2+pos1 ? size1 : size2+pos1);
+	//const slv_int max = (size1 > size2+pos1 ? size1 : size2+pos1);
 
 	slv_int* start_pos1 = new slv_int[size1];
 	slv_int* end_pos1 = new slv_int[size1];

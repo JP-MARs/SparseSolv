@@ -10,11 +10,11 @@
 #define DEFINE_MESH_VOX
 
 /* メッシュを切る範囲X（０から～） */
-constexpr double X_WIDTH = 0.5;
+constexpr double X_WIDTH = 0.1;
 /* メッシュを切る範囲Y（０から～） */
-constexpr double Y_WIDTH = 0.5;
+constexpr double Y_WIDTH = 0.1;
 /* メッシュを切る範囲Z（０から～） */
-constexpr double Z_WIDTH = 0.5;
+constexpr double Z_WIDTH = 0.1;
 
 /* メッシュのx長さ（細かい方） */
 constexpr double X_L1 = 0.001;
@@ -31,11 +31,11 @@ constexpr double Y_L2 = 0.01;
 constexpr double Z_L2 = 0.01;
 
 /* メッシュの粗さ変更点のx座標 */
-constexpr double CHANGE_X = 0.05;
+constexpr double CHANGE_X = 0.01;
 /* メッシュのy長さ（粗い方） */
-constexpr double CHANGE_Y = 0.05;
+constexpr double CHANGE_Y = 0.01;
 /* メッシュのz長さ（粗い方） */
-constexpr double CHANGE_Z = 0.05;
+constexpr double CHANGE_Z = 0.01;
 
 /* 細かいメッシュの数X */
 constexpr int MESH_X1 = ((int)((CHANGE_X / X_L1)));

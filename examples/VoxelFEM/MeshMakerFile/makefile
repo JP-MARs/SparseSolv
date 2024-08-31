@@ -2,18 +2,18 @@
 
 CXX = icpx
 #CXX = g++
-CFLAGS = -O3 -std=c++14 -xhost -qopenmp -I../../ -I../../SparseSolv
+CFLAGS = -O3 -std=c++14 -xhost -qopenmp
 #CFLAGS = -O3 -std=c++14 -fopenmp -I../000_BaseLibraries
 OPTS = -qmkl -ipo
 #OPTS = -lgomp
-LIBS = -L../../ -lSparseSolv
+LIBS = 
 OBJDIR = ./obj
 
 SOURCES  = $(wildcard *.cpp) 
 OBJECTS  = $(addprefix $(OBJDIR)/, $(SOURCES:.cpp=.o))
 
 #target file
-TARGET = run_VoxelFEM
+TARGET = MeshMaker
 
 $(TARGET): $(OBJECTS) 
 	$(CXX) -o $@ $^ $(LDFLAGS) $(LIBS) $(OPTS)

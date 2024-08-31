@@ -1,6 +1,9 @@
 ﻿#ifndef DEF_MAT_SOLVER_EIGEN_AND_MKL_DEF
 #define DEF_MAT_SOLVER_EIGEN_AND_MKL_DEF
 
+/* Intel paradisoを使うとき、on */
+//#define INTEL_MKL_SOLVER_USING
+
 
 #include "SparseMat.hpp"
 #include "SparseMatC.hpp"

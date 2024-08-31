@@ -1,5 +1,5 @@
 ﻿
-#include "MatSolversICCG.hpp"
+#include "MatSolvers.hpp"
 #include "SparseMatOperators.hpp"
 
 /* オリジナル名前空間(静止器/回転機FEMライブラリ) */
@@ -19,7 +19,7 @@ ICCCGソルバ
 /*//=======================================================
 // ● ICCGで解く(右辺ノルム内部計算パターン)
 //=======================================================*/
-bool MatSolversICCG::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMatC& matA, const dcomplex *vecB, dcomplex *results, bool init){
+bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMatC& matA, const dcomplex *vecB, dcomplex *results, bool init){
 	const slv_int size = size0;
 	dcomplex norm = 0;
 	for(int i = 0 ; i < size ; i++){
@@ -30,42 +30,11 @@ bool MatSolversICCG::solveICCG(const slv_int size0, const double conv_cri, const
 	return solveICCG(size, conv_cri, max_ite, accera, normB2, matA, vecB, results, init);
 }
 
-/*//=======================================================
-// ● ICCGで解く・外部実行本体
-//=======================================================*/
-bool MatSolversICCG::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const double normB, const SparseMatC& matA, const dcomplex *vecB, dcomplex *results, bool init){
-	/* コレスキー用スパース行列作成 */
-	dcomplex* diagD = new dcomplex[size0];
-	double accela_val = accera;
-	/* 加速係数が負なら自動決定モードへ */
-	if(accera < -1){
-		accela_val = 1.05;
-		/* 対角が正になるまで実施 */
-		for(int kkk = 0; kkk < 10; kkk++){
-			SparseMatC matL0 = matA.IC_decomp(diagD, accela_val);
-			bool ok = true;
-			for(slv_int i = 0; i < size0; i++){
-				ok &= (diagD[i].real() > 0);
-			}
-			if(ok){
-				break;
-			}
-			accela_val += 0.05;
-		}
-	}
-	/* 確定 */
-	SparseMatC matL = matA.IC_decomp(diagD, accera);
-	SparseMatC matL_tr = matL.trans();
-
-	bool bl= solveICCG(size0, conv_cri, max_ite, normB, diagD, *(matA.matrix), *(matL.matrix), *(matL_tr.matrix), vecB, results, init);
-	delete[] diagD;
-	return bl;
-}
 
 /*//=======================================================
 // ● ICCGで解く(入力右辺がVector)
 //=======================================================*/
-bool MatSolversICCG::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMatC& matA, const std::vector<dcomplex>& vecB, std::vector<dcomplex>& results, bool init){
+bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMatC& matA, const std::vector<dcomplex>& vecB, std::vector<dcomplex>& results, bool init){
 	dcomplex* vecBa = new dcomplex[size0];
 	dcomplex* results_a = new dcomplex[size0];
 	dcomplex norm = 0;
@@ -89,7 +58,7 @@ bool MatSolversICCG::solveICCG(const slv_int size0, const double conv_cri, const
 /*//=======================================================
 // ● ICCGで解く(入力右辺がEigen)
 //=======================================================*/
-bool MatSolversICCG::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMatC& matA, const Eigen::VectorXcd& vecB, dcomplex *results, bool init){
+bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMatC& matA, const Eigen::VectorXcd& vecB, dcomplex *results, bool init){
 	dcomplex* vecBa = new dcomplex[size0];
 	dcomplex norm = 0;
 	for(int i = 0 ; i < size0 ; i++){
@@ -104,12 +73,105 @@ bool MatSolversICCG::solveICCG(const slv_int size0, const double conv_cri, const
 	return bl;
 }
 
+/*//=======================================================
+// ● ICCGで解く・外部実行本体
+//=======================================================*/
+bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const double normB, const SparseMatC& matA, const dcomplex *vecB, dcomplex *results, bool init){
+	/* 対角スケーリングあり */
+	if(is_diag_scale){
+		return solveICCG_diag(size0, conv_cri, max_ite, accera, normB, matA, vecB, results, init);
+	}
+
+	/* コレスキー用スパース行列作成 */
+	dcomplex* diagD = new dcomplex[size0];
+	double accela_val = accera;
+	/* 加速係数が負なら自動決定モードへ */
+	SparseMatC matL;
+	if(accera < -1){
+		accela_val = 1.05;
+		/* 対角が正になるまで実施 */
+		for(int kkk = 0; kkk < 10; kkk++){
+			matL = matA.IC_decomp(diagD, accela_val);
+			bool ok = true;
+			for(slv_int i = 0; i < size0; i++){
+				ok &= (diagD[i].real() > 0);
+			}
+			if(ok){
+				break;
+			}
+			accela_val += 0.05;
+		}
+	} else{
+		matL = matA.IC_decomp(diagD, accera);
+	}
+	/* 確定 */
+	SparseMatC matL_tr = matL.trans();
+
+	bool bl= solveICCG(size0, conv_cri, max_ite, normB, diagD, matA.matrix, matL.matrix, matL_tr.matrix, vecB, results, init);
+	delete[] diagD;
+	return bl;
+}
+/*//=======================================================
+// ● ICCGで解く・外部実行本体
+//=======================================================*/
+bool MatSolvers::solveICCG_diag(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const double normB, const SparseMatC& matA, const dcomplex *vecB, dcomplex *results, bool init){
+	/* 対角スケーリング */
+	dcomplex* vecB2 = new dcomplex[size0];
+	SparseMatC matD = matA.diagScaling(vecB2, vecB);
+	SparseMatC matDAD = matD*matA*matD;
+
+	dcomplex normBb = 0;
+	for(int i = 0; i < size0; i++){
+		normBb += vecB2[i]*vecB2[i];
+	}
+	double normBc = abs(normBb);
+	double normB2 = sqrt(normBc);
+
+
+	/* コレスキー用スパース行列作成 */
+	dcomplex* diagD = new dcomplex[size0];
+	double accela_val = accera;
+	/* 加速係数が負なら自動決定モードへ */
+	SparseMatC matL;
+	if(accera < -1){
+		accela_val = 1.05;
+		/* 対角が正になるまで実施 */
+		for(int kkk = 0; kkk < 10; kkk++){
+			matL = matDAD.IC_decomp(diagD, accela_val);
+			bool ok = true;
+			for(slv_int i = 0; i < size0; i++){
+				ok &= (diagD[i].real() > 0);
+			}
+			if(ok){
+				break;
+			}
+			accela_val += 0.05;
+		}
+	} else{
+		matL = matA.IC_decomp(diagD, accera);
+	}
+	/* 確定 */
+	SparseMatC matL_tr = matL.trans();
+
+	bool bl= solveICCG(size0, conv_cri, max_ite, normB2, diagD, matDAD.matrix, matL.matrix, matL_tr.matrix, vecB2, results, init);
+
+	/* 元に戻す */
+	dcomplex* result_true = matD*results;
+	for(int i = 0; i < size0; i++){
+		results[i] = result_true[i];
+	}
+	delete[] diagD;
+	delete[] vecB2;		
+	delete[] result_true;
+	return bl;
+}
+
 /*========================================*/
 /*========================================*/
 /*//=======================================================
 // ● ICCGで解く（本体）
 //=======================================================*/
-bool MatSolversICCG::solveICCG(const slv_int size, const double conv_cri, const int max_ite, const double normB, 
+bool MatSolvers::solveICCG(const slv_int size, const double conv_cri, const int max_ite, const double normB, 
 						   const dcomplex* diagD, const SparseMatBaseC& matA, const SparseMatBaseC& matL, const SparseMatBaseC& matL_tr, const dcomplex *vecB, dcomplex *results, bool init){
 
 	/* 要素確保 */
@@ -148,8 +210,17 @@ bool MatSolversICCG::solveICCG(const slv_int size, const double conv_cri, const 
 	}
 
 	/* 前処理 */
-	preProcess(size, matL, matL_tr, diagD, EvecR, EvecP);
+	IC_frbc_process(size, matL, matL_tr, diagD, EvecR, EvecP);
 	EvecLDV = EvecP;
+
+	/* 最初から答えだったら何もしない */
+	const double first_normR = EvecR.norm() / normB;
+	if(first_normR < conv_cri*0.01){
+		delete[] start_posA;
+		delete[] end_posA;
+		return true;
+	}
+
 
 	/* 最良結果の保存用（フラグがonなら） */
 	dcomplex* best_results=nullptr;
@@ -237,7 +308,7 @@ bool MatSolversICCG::solveICCG(const slv_int size, const double conv_cri, const 
 		}
 
 		/* v=(LDLT)-1rk　を計算 */
-		preProcess(size, matL, matL_tr, diagD, EvecR, EvecLDV);
+		IC_frbc_process(size, matL, matL_tr, diagD, EvecR, EvecLDV);
 		/* β計算 */
 		const dcomplex rur1 = EvecR.dot(EvecLDV);
 		beta = rur1 / rur0;
@@ -260,128 +331,6 @@ bool MatSolversICCG::solveICCG(const slv_int size, const double conv_cri, const 
 		}
 	}
 	return is_conv ;
-}
-
-/*//=======================================================
-// ● 前処理
-//=======================================================*/
-void MatSolversICCG::preProcess(const slv_int size0, const SparseMatBaseC& matL, const SparseMatBaseC& matL_tr, const dcomplex *diagD, const dcomplex *vecR, dcomplex *vec){
-	const slv_int size = size0;
-	dcomplex s;
-
-	slv_int* start_posL1 = new slv_int[size];
-	slv_int* end_posL1 = new slv_int[size];
-	matL.getCols(start_posL1, end_posL1);
-	auto col_ptrL1 = matL.getColPtr();
-	auto val_ptrL1 = matL.getValuePtr();
-
-	slv_int* start_posL2 = new slv_int[size];
-	slv_int* end_posL2 = new slv_int[size];
-	matL_tr.getCols(start_posL2, end_posL2);
-	auto col_ptrL2 = matL_tr.getColPtr();
-	auto val_ptrL2 = matL_tr.getValuePtr();
-	/* 第一方程式計算 */
-	for (slv_int i = 0; i < size; i++) {
-		s = vecR[i];
-		const slv_int c_size = end_posL1[i] - 1;
-		for (slv_int jj = start_posL1[i]; jj < c_size; jj++) {
-			slv_int j = col_ptrL1[jj];
-			s -= val_ptrL1[jj] * vec[j];
-		}
-		vec[i] = s / val_ptrL1[c_size];
-	}
-	/* 第二方程式計算 */
-	for (slv_int i = size-1; i >= 0; i--) {	
-		s = 0;
-		const slv_int c_size = end_posL2[i];
-		for (slv_int j = start_posL2[i]+1 ; j < c_size; j++) {
-			slv_int the_row = col_ptrL2[j];
-			s += val_ptrL2[j] * vec[the_row];
-		}
-		s *= diagD[i];
-		vec[i] -= s;
-	}
-	delete[] start_posL1;
-	delete[] end_posL1;
-	delete[] start_posL2;
-	delete[] end_posL2;
-}
-
-/*//=======================================================
-// ● 前処理
-//=======================================================*/
-void MatSolversICCG::preProcess(const slv_int size0, const SparseMatBaseC& matL, const SparseMatBaseC& matL_tr, const dcomplex *diagD, const Eigen::VectorXcd& EvecR, Eigen::VectorXcd& vec){
-	const slv_int size = size0;
-	dcomplex s;
-
-	slv_int* start_posL1 = new slv_int[size];
-	slv_int* end_posL1 = new slv_int[size];
-	matL.getCols(start_posL1, end_posL1);
-	auto col_ptrL1 = matL.getColPtr();
-	auto val_ptrL1 = matL.getValuePtr();
-
-	slv_int* start_posL2 = new slv_int[size];
-	slv_int* end_posL2 = new slv_int[size];
-	matL_tr.getCols(start_posL2, end_posL2);
-	auto col_ptrL2 = matL_tr.getColPtr();
-	auto val_ptrL2 = matL_tr.getValuePtr();
-	/* 第一方程式計算 */
-	for (slv_int i = 0; i < size; i++) {
-		s = EvecR(i);
-		const slv_int c_size = end_posL1[i] - 1;
-		for (slv_int jj = start_posL1[i]; jj < c_size; jj++) {
-			slv_int j = col_ptrL1[jj];
-			s -= val_ptrL1[jj] * vec(j);
-		}
-		vec(i) = s / val_ptrL1[c_size];
-	}
-	/* 第二方程式計算 */
-	for (slv_int i = size-1; i >= 0; i--) {	
-		s = 0;
-		const slv_int c_size = end_posL2[i];
-		for (slv_int j = start_posL2[i]+1 ; j < c_size; j++) {
-			slv_int the_row = col_ptrL2[j];
-			s += val_ptrL2[j] * vec(the_row);
-		}
-		s *= diagD[i];
-		vec(i) -= s;
-	}
-	delete[] start_posL1;
-	delete[] end_posL1;
-	delete[] start_posL2;
-	delete[] end_posL2;
-
-#ifdef AAAAAAAAAAAAAA
-	/* 第一方程式計算 */
-	for (slv_int i = 0; i < size; i++) {
-		s = EvecR(i);
-		const slv_int c_size = matL.column_size[i] - 1;
-		dcomplex *L_ptr = matL.matrix[i];
-		slv_int *C_ptr = matL.column[i];
-		for (slv_int jj = 0; jj < c_size; jj++) {
-			slv_int j = *C_ptr ;
-			s -= (*L_ptr) * vec(j);
-			L_ptr++;
-			C_ptr++;
-		}
-		vec(i) = s / (*L_ptr);
-	}
-	/* 第二方程式計算 */
-	for (slv_int i = size-1; i >= 0; i--) {	
-		s = 0;
-		const slv_int c_size = matL_tr.column_size[i];
-		dcomplex *L_ptr = matL_tr.matrix[i]+1;
-		slv_int *C_ptr = matL_tr.column[i]+1;
-		for (slv_int j = 1; j < c_size; j++) {
-			slv_int the_row = *C_ptr ;
-			s += (*L_ptr) * vec(the_row);
-			L_ptr++;
-			C_ptr++;
-		}
-		s *= diagD[i];
-		vec(i) -= s;
-	}
-#endif
 }
 
 /* end of namespace */

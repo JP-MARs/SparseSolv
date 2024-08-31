@@ -29,7 +29,7 @@ bool MatSolversEigenMKL::solveEigenICCG(const slv_int size0, const double conv_c
 	iccg.setMaxIterations(max_ite);
 	iccg.setTolerance(conv_cri);
 
-	iccg.compute(matA.matrix->matrix);
+	iccg.compute(matA.matrix.matrix);
 	if(init){
 		results = iccg.solve(vecB);
 	}else{
@@ -61,7 +61,7 @@ bool MatSolversEigenMKL::solveEigenBiCGstab(const slv_int size0, const double co
 	bicg.setMaxIterations(max_ite);
 	bicg.setTolerance(conv_cri);
 
-	bicg.compute(matA.matrix->matrix);
+	bicg.compute(matA.matrix.matrix);
 	if(init){
 		results = bicg.solve(vecB);
 	}else{
@@ -94,7 +94,7 @@ bool MatSolversEigenMKL::solveEigenICCG(const slv_int size0, const double conv_c
 	iccg.setMaxIterations(max_ite);
 	iccg.setTolerance(conv_cri);
 
-	iccg.compute(matA.matrix->matrix);
+	iccg.compute(matA.matrix.matrix);
 	if(init){
 		results = iccg.solve(vecB);
 	}else{
@@ -127,7 +127,7 @@ bool MatSolversEigenMKL::solveEigenBiCGstab(const slv_int size0, const double co
 	bicg.setMaxIterations(max_ite);
 	bicg.setTolerance(conv_cri);
 
-	bicg.compute(matA.matrix->matrix);
+	bicg.compute(matA.matrix.matrix);
 	if(init){
 		results = bicg.solve(vecB);
 	}else{
@@ -156,7 +156,7 @@ bool MatSolversEigenMKL::solveEigenBiCGstab(const slv_int size0, const double co
 //=======================================================*/
 bool MatSolversEigenMKL::solveEigenSimplicialLDLT(const slv_int size0, const SparseMat& matA, const Eigen::VectorXd& vecB, Eigen::VectorXd& results){	
 	Eigen::SimplicialLDLT< Eigen::SparseMatrix<double> > solver;
-	solver.compute(matA.matrix->matrix);
+	solver.compute(matA.matrix.matrix);
 	if(solver.info() != Eigen::Success) {
 		return false;
 	}
@@ -168,7 +168,7 @@ bool MatSolversEigenMKL::solveEigenSimplicialLDLT(const slv_int size0, const Spa
 }
 bool MatSolversEigenMKL::solveEigenSimplicialLDLT(const slv_int size0, const SparseMatC& matA, const Eigen::VectorXcd& vecB, Eigen::VectorXcd& results){	
 	Eigen::SimplicialLDLT< Eigen::SparseMatrix<dcomplex> > solver;
-	solver.compute(matA.matrix->matrix);
+	solver.compute(matA.matrix.matrix);
 	if(solver.info() != Eigen::Success) {
 		return false;
 	}
