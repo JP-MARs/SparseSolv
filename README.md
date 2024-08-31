@@ -1,5 +1,9 @@
 ﻿# SparseSolv
-SparseMatrix and Matrix Solvers including the shifted-ICCG
+SparseMatrix and Matrix Solvers including 
+- shifted-ICCG
+- multicolor ordering shifted ICCG
+- shifted-IC+MRTR
+- Eisenstat's Symmetric Gauss-Seidel-MRTR.
 
 ## SparseSolv
 Provide sparse matrix and its linear solver.
@@ -21,4 +25,10 @@ https://u.muroran-it.ac.jp/it-elec-lab/open_data/voxel_data/MeshData_850000ele.z
 https://u.muroran-it.ac.jp/it-elec-lab/open_data/voxel_data/MeshData_2000000ele.zip<br>
 Please unzip the zip-file, and put "*.vxldata" files at "examples/VoxelFEM/MeshData/".<br>
 The  "Defines_Mesh.h" at "examples/VoxelFEM/" is overwrite by the same file in the zip-file.<br>
+
+# Contributor:
+ - Takahiro Sato (Muroran institute of technology, JAPAN)
+ - Shingo Hiruma (Kyoto University, JAPAN)
+ - Kengo Sugahara (Kindai University, JAPAN)
+ - Tomonori Tsuburaya (Fukuoka University, JAPAN)
 
