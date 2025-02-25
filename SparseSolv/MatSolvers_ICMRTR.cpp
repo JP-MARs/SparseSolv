@@ -604,9 +604,11 @@ bool MatSolvers::solveICMRTR(const slv_int size, const double conv_cri, const in
 		IC_frbc_process(size, matL, matL_tr, diagD, vecV, vecW);
 
 		/* (w, r(k)) */
-		dcomplex w_r = vecW.dot(EvecR);
+		//dcomplex w_r = vecW.dot(EvecR);
+		dcomplex w_r = vecW.transpose()*EvecR;
 		/* (v, w) */
-		dcomplex v_w = vecV.dot(vecW);
+		//dcomplex v_w = vecV.dot(vecW);
+		dcomplex v_w = vecV.transpose()*vecW;
 
 		if(It == 0){
 			/* ƒÄ(0) */
@@ -616,7 +618,8 @@ bool MatSolvers::solveICMRTR(const slv_int size, const double conv_cri, const in
 			eta = 0.0;
 		} else{
 			/* (w, y(k)) */
-			dcomplex w_y = vecW.dot(EvecY);
+			//dcomplex w_y = vecW.dot(EvecY);
+			dcomplex w_y = vecW.transpose()*EvecY;
 			/* ƒÄ(k), ƒÅ(k) ‚ÌŽ®‚Ì•ª•ê */
 			const dcomplex temp0 = 1.0 / (nu * v_w - w_y * w_y);
 			/* ƒÄ(k) */

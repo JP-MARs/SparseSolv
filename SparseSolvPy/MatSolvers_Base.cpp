@@ -54,7 +54,7 @@ void MatSolvers::getResidualLog(std::vector<double>& log){
 //=======================================================*/
 void MatSolvers::IC_frbc_process(const slv_int size0, const SparseMatBaseD& matL, const SparseMatBaseD& matL_tr, const double *diagD, const double *vecR, double *vec){
 	const slv_int size = size0;
-	double s;
+	//double s;
 
 	slv_int* start_posL1 = new slv_int[size];
 	slv_int* end_posL1 = new slv_int[size];
@@ -69,7 +69,7 @@ void MatSolvers::IC_frbc_process(const slv_int size0, const SparseMatBaseD& matL
 	auto val_ptrL2 = matL_tr.getValuePtr();
 	/* ‘æˆê•û’öŽ®ŒvŽZ */
 	for (slv_int i = 0; i < size; i++) {
-		s = vecR[i];
+		double s = vecR[i];
 		const slv_int c_size = end_posL1[i] - 1;
 		for (slv_int jj = start_posL1[i]; jj < c_size; jj++) {
 			slv_int j = col_ptrL1[jj];
@@ -79,7 +79,7 @@ void MatSolvers::IC_frbc_process(const slv_int size0, const SparseMatBaseD& matL
 	}
 	/* ‘æ“ñ•û’öŽ®ŒvŽZ */
 	for (slv_int i = size-1; i >= 0; i--) {	
-		s = 0;
+		double s = 0;
 		const slv_int c_size = end_posL2[i];
 		for (slv_int j = start_posL2[i]+1 ; j < c_size; j++) {
 			slv_int the_row = col_ptrL2[j];
@@ -99,7 +99,7 @@ void MatSolvers::IC_frbc_process(const slv_int size0, const SparseMatBaseD& matL
 //=======================================================*/
 void MatSolvers::IC_frbc_process(const slv_int size0, const SparseMatBaseD& matL, const SparseMatBaseD& matL_tr, const double *diagD, const Eigen::VectorXd& EvecR, Eigen::VectorXd& vec){
 	const slv_int size = size0;
-	double s;
+	//double s;
 	slv_int* start_posL1 = new slv_int[size];
 	slv_int* end_posL1 = new slv_int[size];
 	matL.getCols(start_posL1, end_posL1);
@@ -113,7 +113,7 @@ void MatSolvers::IC_frbc_process(const slv_int size0, const SparseMatBaseD& matL
 	auto val_ptrL2 = matL_tr.getValuePtr();
 	/* ‘æˆê•û’öŽ®ŒvŽZ */
 	for (slv_int i = 0; i < size; i++) {
-		s = EvecR(i);
+		double s = EvecR(i);
 		const slv_int c_size = end_posL1[i] - 1;
 		for (slv_int jj = start_posL1[i]; jj < c_size; jj++) {
 			slv_int j = col_ptrL1[jj];
@@ -123,7 +123,7 @@ void MatSolvers::IC_frbc_process(const slv_int size0, const SparseMatBaseD& matL
 	}
 	/* ‘æ“ñ•û’öŽ®ŒvŽZ */
 	for (slv_int i = size-1; i >= 0; i--) {	
-		s = 0;
+		double s = 0;
 		const slv_int c_size = end_posL2[i];
 		for (slv_int j = start_posL2[i]+1 ; j < c_size; j++) {
 			slv_int the_row = col_ptrL2[j];
@@ -144,7 +144,7 @@ void MatSolvers::IC_frbc_process(const slv_int size0, const SparseMatBaseD& matL
 //=======================================================*/
 void MatSolvers::IC_frbc_process(const slv_int size0, const SparseMatBaseC& matL, const SparseMatBaseC& matL_tr, const dcomplex *diagD, const dcomplex *vecR, dcomplex *vec){
 	const slv_int size = size0;
-	dcomplex s;
+	//dcomplex s;
 
 	slv_int* start_posL1 = new slv_int[size];
 	slv_int* end_posL1 = new slv_int[size];
@@ -159,7 +159,7 @@ void MatSolvers::IC_frbc_process(const slv_int size0, const SparseMatBaseC& matL
 	auto val_ptrL2 = matL_tr.getValuePtr();
 	/* ‘æˆê•û’öŽ®ŒvŽZ */
 	for (slv_int i = 0; i < size; i++) {
-		s = vecR[i];
+		dcomplex s = vecR[i];
 		const slv_int c_size = end_posL1[i] - 1;
 		for (slv_int jj = start_posL1[i]; jj < c_size; jj++) {
 			slv_int j = col_ptrL1[jj];
@@ -169,7 +169,7 @@ void MatSolvers::IC_frbc_process(const slv_int size0, const SparseMatBaseC& matL
 	}
 	/* ‘æ“ñ•û’öŽ®ŒvŽZ */
 	for (slv_int i = size-1; i >= 0; i--) {	
-		s = 0;
+		dcomplex s = 0;
 		const slv_int c_size = end_posL2[i];
 		for (slv_int j = start_posL2[i]+1 ; j < c_size; j++) {
 			slv_int the_row = col_ptrL2[j];
@@ -189,7 +189,7 @@ void MatSolvers::IC_frbc_process(const slv_int size0, const SparseMatBaseC& matL
 //=======================================================*/
 void MatSolvers::IC_frbc_process(const slv_int size0, const SparseMatBaseC& matL, const SparseMatBaseC& matL_tr, const dcomplex *diagD, const Eigen::VectorXcd& EvecR, Eigen::VectorXcd& vec){
 	const slv_int size = size0;
-	dcomplex s;
+	//dcomplex s;
 
 	slv_int* start_posL1 = new slv_int[size];
 	slv_int* end_posL1 = new slv_int[size];
@@ -204,7 +204,7 @@ void MatSolvers::IC_frbc_process(const slv_int size0, const SparseMatBaseC& matL
 	auto val_ptrL2 = matL_tr.getValuePtr();
 	/* ‘æˆê•û’öŽ®ŒvŽZ */
 	for (slv_int i = 0; i < size; i++) {
-		s = EvecR(i);
+		dcomplex s = EvecR(i);
 		const slv_int c_size = end_posL1[i] - 1;
 		for (slv_int jj = start_posL1[i]; jj < c_size; jj++) {
 			slv_int j = col_ptrL1[jj];
@@ -214,7 +214,7 @@ void MatSolvers::IC_frbc_process(const slv_int size0, const SparseMatBaseC& matL
 	}
 	/* ‘æ“ñ•û’öŽ®ŒvŽZ */
 	for (slv_int i = size-1; i >= 0; i--) {	
-		s = 0;
+		dcomplex s = 0;
 		const slv_int c_size = end_posL2[i];
 		for (slv_int j = start_posL2[i]+1 ; j < c_size; j++) {
 			slv_int the_row = col_ptrL2[j];
@@ -239,7 +239,7 @@ void MatSolvers::IC_frbc_process(const slv_int size0, const SparseMatBaseC& matL
 //=======================================================*/
 void MatSolvers::fr_process(const slv_int size0, const SparseMatBaseD& matL, const double *vecR, double *vec){
 	const slv_int size = size0;
-	double s;
+	//double s;
 
 	slv_int* start_posL1 = new slv_int[size];
 	slv_int* end_posL1 = new slv_int[size];
@@ -249,7 +249,7 @@ void MatSolvers::fr_process(const slv_int size0, const SparseMatBaseD& matL, con
 
 	/* ‘æˆê•û’öŽ®ŒvŽZ */
 	for (slv_int i = 0; i < size; i++) {
-		s = vecR[i];
+		double s = vecR[i];
 		const slv_int c_size = end_posL1[i] - 1;
 		for (slv_int jj = start_posL1[i]; jj < c_size; jj++) {
 			slv_int j = col_ptrL1[jj];
@@ -266,7 +266,7 @@ void MatSolvers::fr_process(const slv_int size0, const SparseMatBaseD& matL, con
 //=======================================================*/
 void MatSolvers::fr_process(const slv_int size0, const SparseMatBaseD& matL, const Eigen::VectorXd& EvecR, Eigen::VectorXd& vec){
 	const slv_int size = size0;
-	double s;
+	//double s;
 	slv_int* start_posL1 = new slv_int[size];
 	slv_int* end_posL1 = new slv_int[size];
 	matL.getCols(start_posL1, end_posL1);
@@ -274,7 +274,7 @@ void MatSolvers::fr_process(const slv_int size0, const SparseMatBaseD& matL, con
 	auto val_ptrL1 = matL.getValuePtr();
 	/* ‘æˆê•û’öŽ®ŒvŽZ */
 	for (slv_int i = 0; i < size; i++) {
-		s = EvecR(i);
+		double s = EvecR(i);
 		const slv_int c_size = end_posL1[i] - 1;
 		for (slv_int jj = start_posL1[i]; jj < c_size; jj++) {
 			slv_int j = col_ptrL1[jj];
@@ -292,7 +292,7 @@ void MatSolvers::fr_process(const slv_int size0, const SparseMatBaseD& matL, con
 //=======================================================*/
 void MatSolvers::fr_process(const slv_int size0, const SparseMatBaseC& matL, const dcomplex *vecR, dcomplex *vec){
 	const slv_int size = size0;
-	dcomplex s;
+	//dcomplex s;
 
 	slv_int* start_posL1 = new slv_int[size];
 	slv_int* end_posL1 = new slv_int[size];
@@ -302,7 +302,7 @@ void MatSolvers::fr_process(const slv_int size0, const SparseMatBaseC& matL, con
 
 	/* ‘æˆê•û’öŽ®ŒvŽZ */
 	for (slv_int i = 0; i < size; i++) {
-		s = vecR[i];
+		dcomplex s = vecR[i];
 		const slv_int c_size = end_posL1[i] - 1;
 		for (slv_int jj = start_posL1[i]; jj < c_size; jj++) {
 			slv_int j = col_ptrL1[jj];
@@ -319,7 +319,7 @@ void MatSolvers::fr_process(const slv_int size0, const SparseMatBaseC& matL, con
 //=======================================================*/
 void MatSolvers::fr_process(const slv_int size0, const SparseMatBaseC& matL, const Eigen::VectorXcd& EvecR, Eigen::VectorXcd& vec){
 	const slv_int size = size0;
-	dcomplex s;
+	//dcomplex s;
 
 	slv_int* start_posL1 = new slv_int[size];
 	slv_int* end_posL1 = new slv_int[size];
@@ -329,7 +329,7 @@ void MatSolvers::fr_process(const slv_int size0, const SparseMatBaseC& matL, con
 
 	/* ‘æˆê•û’öŽ®ŒvŽZ */
 	for (slv_int i = 0; i < size; i++) {
-		s = EvecR(i);
+		dcomplex s = EvecR(i);
 		const slv_int c_size = end_posL1[i] - 1;
 		for (slv_int jj = start_posL1[i]; jj < c_size; jj++) {
 			slv_int j = col_ptrL1[jj];
@@ -351,7 +351,7 @@ void MatSolvers::fr_process(const slv_int size0, const SparseMatBaseC& matL, con
 //=======================================================*/
 void MatSolvers::bc_process(const slv_int size0, const SparseMatBaseD& matL_tr, const double *vecR, double *vec){
 	const slv_int size = size0;
-	double s;
+	//double s;
 
 	slv_int* start_posL2 = new slv_int[size];
 	slv_int* end_posL2 = new slv_int[size];
@@ -361,7 +361,7 @@ void MatSolvers::bc_process(const slv_int size0, const SparseMatBaseD& matL_tr, 
 
 	/* ‘æ“ñ•û’öŽ®ŒvŽZ */
 	for (slv_int i = size-1; i >= 0; i--) {	
-		s = vecR[i];
+		double s = vecR[i];
 		const slv_int c_size = end_posL2[i];
 		for (slv_int j = start_posL2[i]+1 ; j < c_size; j++) {
 			slv_int the_row = col_ptrL2[j];
@@ -378,7 +378,7 @@ void MatSolvers::bc_process(const slv_int size0, const SparseMatBaseD& matL_tr, 
 //=======================================================*/
 void MatSolvers::bc_process(const slv_int size0, const SparseMatBaseD& matL_tr, const Eigen::VectorXd& EvecR, Eigen::VectorXd& vec){
 	const slv_int size = size0;
-	double s;
+	//double s;
 
 	slv_int* start_posL2 = new slv_int[size];
 	slv_int* end_posL2 = new slv_int[size];
@@ -387,7 +387,7 @@ void MatSolvers::bc_process(const slv_int size0, const SparseMatBaseD& matL_tr, 
 	auto val_ptrL2 = matL_tr.getValuePtr();
 	/* ‘æ“ñ•û’öŽ®ŒvŽZ */
 	for (slv_int i = size-1; i >= 0; i--) {	
-		s = EvecR(i);
+		double s = EvecR(i);
 		const slv_int c_size = end_posL2[i];
 		for (slv_int j = start_posL2[i]+1 ; j < c_size; j++) {
 			slv_int the_row = col_ptrL2[j];
@@ -405,7 +405,7 @@ void MatSolvers::bc_process(const slv_int size0, const SparseMatBaseD& matL_tr, 
 //=======================================================*/
 void MatSolvers::bc_process(const slv_int size0, const SparseMatBaseC& matL_tr, const dcomplex *vecR, dcomplex *vec){
 	const slv_int size = size0;
-	dcomplex s;
+	//dcomplex s;
 
 	slv_int* start_posL2 = new slv_int[size];
 	slv_int* end_posL2 = new slv_int[size];
@@ -414,7 +414,7 @@ void MatSolvers::bc_process(const slv_int size0, const SparseMatBaseC& matL_tr, 
 	auto val_ptrL2 = matL_tr.getValuePtr();
 	/* ‘æ“ñ•û’öŽ®ŒvŽZ */
 	for (slv_int i = size-1; i >= 0; i--) {	
-		s = vecR[i];
+		dcomplex s = vecR[i];
 		const slv_int c_size = end_posL2[i];
 		for (slv_int j = start_posL2[i]+1 ; j < c_size; j++) {
 			slv_int the_row = col_ptrL2[j];
@@ -431,7 +431,7 @@ void MatSolvers::bc_process(const slv_int size0, const SparseMatBaseC& matL_tr, 
 //=======================================================*/
 void MatSolvers::bc_process(const slv_int size0, const SparseMatBaseC& matL_tr, const Eigen::VectorXcd& EvecR, Eigen::VectorXcd& vec){
 	const slv_int size = size0;
-	dcomplex s;
+	//dcomplex s;
 
 	slv_int* start_posL2 = new slv_int[size];
 	slv_int* end_posL2 = new slv_int[size];
@@ -440,7 +440,7 @@ void MatSolvers::bc_process(const slv_int size0, const SparseMatBaseC& matL_tr, 
 	auto val_ptrL2 = matL_tr.getValuePtr();
 	/* ‘æ“ñ•û’öŽ®ŒvŽZ */
 	for (slv_int i = size-1; i >= 0; i--) {	
-		s = EvecR(i);
+		dcomplex s = EvecR(i);
 		const slv_int c_size = end_posL2[i];
 		for (slv_int j = start_posL2[i]+1 ; j < c_size; j++) {
 			slv_int the_row = col_ptrL2[j];

@@ -127,7 +127,6 @@ bool MatSolvers::solveICCG_diag(const slv_int size0, const double conv_cri, cons
 	double normBc = abs(normBb);
 	double normB2 = sqrt(normBc);
 
-
 	/* コレスキー用スパース行列作成 */
 	dcomplex* diagD = new dcomplex[size0];
 	double accela_val = accera;
@@ -230,7 +229,8 @@ bool MatSolvers::solveICCG(const slv_int size, const double conv_cri, const int 
 	}
 
 	/* 初期値 */
-	dcomplex rur0 = EvecR.dot(EvecLDV);
+	//dcomplex rur0 = EvecR.dot(EvecLDV);/* 内積だと複素が共役になるので、x^Tyでやる */
+	dcomplex rur0 = EvecR.transpose()*EvecLDV;
 
 	bool is_conv = false;
 	int bad_counter = 0;
@@ -254,7 +254,8 @@ bool MatSolvers::solveICCG(const slv_int size, const double conv_cri, const int 
 		EtempAP = matA.matrix * EvecP;
 		/* α計算 */
 		//const dcomplex temp = EvecR.dot(EvecLDV);
-		const dcomplex temp2 = EvecP.dot(EtempAP);
+		//const dcomplex temp2 = EvecP.dot(EtempAP);
+		const dcomplex temp2 = EvecP.transpose()*EtempAP;
 		//alpha = temp / temp2;
 		alpha = rur0 / temp2;
 
@@ -310,7 +311,8 @@ bool MatSolvers::solveICCG(const slv_int size, const double conv_cri, const int 
 		/* v=(LDLT)-1rk　を計算 */
 		IC_frbc_process(size, matL, matL_tr, diagD, EvecR, EvecLDV);
 		/* β計算 */
-		const dcomplex rur1 = EvecR.dot(EvecLDV);
+		//const dcomplex rur1 = EvecR.dot(EvecLDV);
+		const dcomplex rur1 = EvecR.transpose()*EvecLDV;
 		beta = rur1 / rur0;
 		rur0 = rur1;
 		//beta = EvecR.dot(EvecLDV);

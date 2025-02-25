@@ -483,9 +483,11 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 		EvecARd += EvecU;		
 
 		/* (Ard, rd) */
-		dcomplex Ar_r = EvecARd.dot(EvecRd);
+		//dcomplex Ar_r = EvecARd.dot(EvecRd);
+		dcomplex Ar_r = EvecARd.transpose()*EvecRd;
 		/* (Ard, Ard) */
-		dcomplex Ar_Ar =  EvecARd.dot(EvecARd);
+		//dcomplex Ar_Ar =  EvecARd.dot(EvecARd);
+		dcomplex Ar_Ar =  EvecARd.transpose()*EvecARd;
 
 		if(It == 0){
 			/* ƒÄ(0) */
@@ -495,7 +497,8 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 			eta = 0.0;
 		} else{
 			/* (A*rd(k), y(k)) */
-			dcomplex Ar_y = EvecARd.dot(EvecY);
+			//dcomplex Ar_y = EvecARd.dot(EvecY);
+			dcomplex Ar_y = EvecARd.transpose()*EvecY;
 			/* ƒÄ(k), ƒÅ(k) ‚ÌŽ®‚Ì•ª•ê */
 			dcomplex temp = 1.0 / (nu * Ar_Ar - Ar_y * Ar_y);
 			/* ƒÄ(k) */
