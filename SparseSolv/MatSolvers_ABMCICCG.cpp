@@ -22,7 +22,7 @@ namespace SRLfem{
 //
 // Sort by Algebraic Multi-Color Ordering
 //
-void MatSolvers::sortAlgebraicMultiColor(slv_int size0, const SparseMatBaseD &A, SparseMatBaseD &PA, const double *b, double *Pb, std::vector<std::vector<int>> &color_list, std::vector<int> &ordering, std::vector<int> &reverse_ordering, int num_colors)
+void MatSolvers::sortAlgebraicMultiColor(slv_int size0, const SparseMatBaseD &A, SparseMatBaseD &PA, const double *b, double *Pb, std::vector<std::vector<slv_int>> &color_list, std::vector<slv_int> &ordering, std::vector<slv_int> &reverse_ordering, int num_colors)
 {
     const slv_int numRow = size0;
     int num_colors_ = num_colors;
@@ -36,7 +36,7 @@ void MatSolvers::sortAlgebraicMultiColor(slv_int size0, const SparseMatBaseD &A,
 
     for (int i = 0; i < numRow; i++)
     {
-        int mu = start_pos[i];
+        slv_int mu = start_pos[i];
         while (col_ptr[mu] != i)
         {
             mu++;
@@ -55,7 +55,7 @@ void MatSolvers::sortAlgebraicMultiColor(slv_int size0, const SparseMatBaseD &A,
     for (int i = 0; i < numRow; i++)
     {
         color[i] = -1;
-        int mu = start_pos[i];
+        slv_int mu = start_pos[i];
         while (col_ptr[mu] != i)
         {
             if (color[col_ptr[mu]] == icolor)
@@ -100,7 +100,7 @@ void MatSolvers::sortAlgebraicMultiColor(slv_int size0, const SparseMatBaseD &A,
 //
 void MatSolvers::makeAlgebraicBlock(slv_int size0, const SparseMatBaseD &A,
                                         SparseMatBaseD &Mb,
-                                        std::vector<std::vector<int>> &block_list,
+                                        std::vector<std::vector<slv_int>> &block_list,
                                         int num_blocks)
 {
     const slv_int numRow = size0;
@@ -175,10 +175,10 @@ void MatSolvers::sortAlgebraicBlockMultiColor(slv_int size0,
                                                     SparseMatBaseD &PA,
                                                     const double *b,
                                                     double *Pb,
-                                                    std::vector<std::vector<int>> &block_list,
-                                                    std::vector<std::vector<int>> &color_list,
-                                                    std::vector<int> &ordering,
-                                                    std::vector<int> &reverse_ordering,
+                                                    std::vector<std::vector<slv_int>> &block_list,
+                                                    std::vector<std::vector<slv_int>> &color_list,
+                                                    std::vector<slv_int> &ordering,
+                                                    std::vector<slv_int> &reverse_ordering,
                                                     int num_blocks,
                                                     int num_colors)
 {
@@ -198,8 +198,8 @@ void MatSolvers::sortAlgebraicBlockMultiColor(slv_int size0,
     SparseMatBaseD PMb(max_block);
     double *y = new double[max_block];
     double *z = new double[max_block];
-    std::vector<int> block_ordering;
-    std::vector<int> reverse_block_ordering;
+    std::vector<slv_int> block_ordering;
+    std::vector<slv_int> reverse_block_ordering;
     sortAlgebraicMultiColor(max_block, Mb, PMb, y, z, color_list, block_ordering, reverse_block_ordering, num_colors);
 
     // color_list: soted by new block index
@@ -280,14 +280,14 @@ bool MatSolvers::parallelIccgSolv(slv_int size0,
     //        converged : Number of iteration
     //    not converged : -1
 
-    slv_int i;
+    long long i;
     int k;
     bool is_conv = false;
     double eps2;
     double r2sum;
     double rur0, rur1, pap, alpha, beta;
 
-    slv_int n = size0;
+    long long n = size0;
     Eigen::VectorXd EvecX(n);
 
     eps2 = eps * eps;
@@ -481,9 +481,10 @@ void MatSolvers::parallelIcSolv(slv_int size0, const SparseMatBaseD &L, const Sp
     //
     /*     ver. 1.00 2024.2.21  S. Hiruma */
     /* *********************************************************** */
-    slv_int n, k, l, mu, nu;
-    slv_int col;
-    slv_int bl;
+    slv_int n, mu, nu;
+    long long k, l;
+    long long col;
+    int bl;
     slv_int idx;
     double t;
     double *y;

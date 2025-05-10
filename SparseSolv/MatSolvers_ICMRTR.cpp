@@ -23,7 +23,7 @@ MRTRƒ\ƒ‹ƒo
 bool MatSolvers::solveICMRTR(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMat& matA, const double *vecB, double *results, bool init){
 	const slv_int size = size0;
 	double norm = 0;
-	for(int i = 0 ; i < size ; i++){
+	for(slv_int i = 0 ; i < size ; i++){
 		norm += vecB[i]*vecB[i];
 	}
 	norm = sqrt(norm);
@@ -38,7 +38,7 @@ bool MatSolvers::solveICMRTR(const slv_int size0, const double conv_cri, const i
 	double* vecBa = new double[size0];
 	double* results_a = new double[size0];
 	double norm=0;
-	for(int i = 0 ; i < size0 ; i++){
+	for(slv_int i = 0 ; i < size0 ; i++){
 		const double temp = vecB[i];
 		vecBa[i] = temp;
 		norm += temp*temp;
@@ -46,7 +46,7 @@ bool MatSolvers::solveICMRTR(const slv_int size0, const double conv_cri, const i
 	}
 	norm = sqrt(norm);
 	bool bl = solveICMRTR(size0, conv_cri, max_ite, accera, norm, matA, vecBa, results_a, init);
-	for(int i = 0 ; i < size0 ; i++){
+	for(slv_int i = 0 ; i < size0 ; i++){
 		results[i] = results_a[i];
 	}
 	delete[] vecBa;
@@ -60,7 +60,7 @@ bool MatSolvers::solveICMRTR(const slv_int size0, const double conv_cri, const i
 bool MatSolvers::solveICMRTR(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMat& matA, const Eigen::VectorXd& vecB, double *results, bool init){
 	double* vecBa = new double[size0];
 	double norm=0;
-	for(int i = 0 ; i < size0 ; i++){
+	for(slv_int i = 0 ; i < size0 ; i++){
 		const double temp = vecB(i);
 		vecBa[i] = temp;
 		norm += temp*temp;
@@ -120,7 +120,7 @@ bool MatSolvers::solveICMRTR_diag(const slv_int size0, const double conv_cri, co
 	SparseMat matDAD = matD*matA*matD;
 
 	double normB2 = 0;
-	for(int i = 0; i < size0; i++){
+	for(slv_int i = 0; i < size0; i++){
 		normB2 += vecB2[i]*vecB2[i];
 	}
 	normB2 = sqrt(normB2);
@@ -155,7 +155,7 @@ bool MatSolvers::solveICMRTR_diag(const slv_int size0, const double conv_cri, co
 
 	/* Œ³‚É–ß‚· */
 	double* result_true = matD*results;
-	for(int i = 0; i < size0; i++){
+	for(slv_int i = 0; i < size0; i++){
 		results[i] = result_true[i];
 	}
 	delete[] diagD;
@@ -172,7 +172,7 @@ bool MatSolvers::solveICMRTR_diag(const slv_int size0, const double conv_cri, co
 bool MatSolvers::solveICMRTR(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMatC& matA, const dcomplex *vecB, dcomplex *results, bool init){
 	const slv_int size = size0;
 	dcomplex norm = 0;
-	for(int i = 0 ; i < size ; i++){
+	for(slv_int i = 0 ; i < size ; i++){
 		norm += vecB[i]*vecB[i];
 	}
 	double normB2 = abs(norm);
@@ -187,7 +187,7 @@ bool MatSolvers::solveICMRTR(const slv_int size0, const double conv_cri, const i
 	dcomplex* vecBa = new dcomplex[size0];
 	dcomplex* results_a = new dcomplex[size0];
 	dcomplex norm = 0;
-	for(int i = 0 ; i < size0 ; i++){
+	for(slv_int i = 0 ; i < size0 ; i++){
 		const dcomplex temp = vecB[i];
 		vecBa[i] = temp;
 		norm += temp*temp;
@@ -196,7 +196,7 @@ bool MatSolvers::solveICMRTR(const slv_int size0, const double conv_cri, const i
 	double normB2 = abs(norm);
 	normB2 = sqrt(normB2);
 	bool bl = solveICMRTR(size0, conv_cri, max_ite, accera, normB2, matA, vecBa, results_a, init);
-	for(int i = 0 ; i < size0 ; i++){
+	for(slv_int i = 0 ; i < size0 ; i++){
 		results[i] = results_a[i];
 	}
 	delete[] results_a;
@@ -210,7 +210,7 @@ bool MatSolvers::solveICMRTR(const slv_int size0, const double conv_cri, const i
 bool MatSolvers::solveICMRTR(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMatC& matA, const Eigen::VectorXcd& vecB, dcomplex *results, bool init){
 	dcomplex* vecBa = new dcomplex[size0];
 	dcomplex norm = 0;
-	for(int i = 0 ; i < size0 ; i++){
+	for(slv_int i = 0 ; i < size0 ; i++){
 		const dcomplex temp = vecB(i);
 		vecBa[i] = temp;
 		norm += temp*temp;
@@ -272,7 +272,7 @@ bool MatSolvers::solveICMRTR_diag(const slv_int size0, const double conv_cri, co
 	SparseMatC matDAD = matD*matA*matD;
 
 	dcomplex normBb = 0;
-	for(int i = 0; i < size0; i++){
+	for(slv_int i = 0; i < size0; i++){
 		normBb += vecB2[i]*vecB2[i];
 	}
 	double normBc = abs(normBb);
@@ -308,7 +308,7 @@ bool MatSolvers::solveICMRTR_diag(const slv_int size0, const double conv_cri, co
 
 	/* Œ³‚É–ß‚· */
 	dcomplex* result_true = matD*results;
-	for(int i = 0; i < size0; i++){
+	for(slv_int i = 0; i < size0; i++){
 		results[i] = result_true[i];
 	}
 	delete[] diagD;
@@ -342,12 +342,12 @@ bool MatSolvers::solveICMRTR(const slv_int size, const double conv_cri, const in
 
 	/* ‰ŠúÝ’è */
 	if(init){
-		for(int i = 0 ; i < size ; i++){
+		for(slv_int i = 0 ; i < size ; i++){
 			results[i] = 0;
 			EvecX(i) = 0.0;
 		}
 	} else{
-		for(int i = 0 ; i < size ; i++){
+		for(slv_int i = 0 ; i < size ; i++){
 			EvecX(i) = results[i];
 		}
 	}
@@ -537,12 +537,12 @@ bool MatSolvers::solveICMRTR(const slv_int size, const double conv_cri, const in
 
 	/* ‰ŠúÝ’è */
 	if(init){
-		for(int i = 0 ; i < size ; i++){
+		for(slv_int i = 0 ; i < size ; i++){
 			results[i] = 0;
 			EvecX(i) = 0.0;
 		}
 	} else{
-		for(int i = 0 ; i < size ; i++){
+		for(slv_int i = 0 ; i < size ; i++){
 			EvecX(i) = results[i];
 		}
 	}
@@ -604,9 +604,11 @@ bool MatSolvers::solveICMRTR(const slv_int size, const double conv_cri, const in
 		IC_frbc_process(size, matL, matL_tr, diagD, vecV, vecW);
 
 		/* (w, r(k)) */
-		dcomplex w_r = vecW.dot(EvecR);
+		//dcomplex w_r = vecW.dot(EvecR);
+		dcomplex w_r = vecW.transpose()*EvecR;
 		/* (v, w) */
-		dcomplex v_w = vecV.dot(vecW);
+		//dcomplex v_w = vecV.dot(vecW);
+		dcomplex v_w = vecV.transpose()*vecW;
 
 		if(It == 0){
 			/* ƒÄ(0) */
@@ -616,7 +618,8 @@ bool MatSolvers::solveICMRTR(const slv_int size, const double conv_cri, const in
 			eta = 0.0;
 		} else{
 			/* (w, y(k)) */
-			dcomplex w_y = vecW.dot(EvecY);
+			//dcomplex w_y = vecW.dot(EvecY);
+			dcomplex w_y = vecW.transpose()*EvecY;
 			/* ƒÄ(k), ƒÅ(k) ‚ÌŽ®‚Ì•ª•ê */
 			const dcomplex temp0 = 1.0 / (nu * v_w - w_y * w_y);
 			/* ƒÄ(k) */
