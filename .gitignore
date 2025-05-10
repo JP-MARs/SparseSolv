@@ -4,3 +4,5 @@
 
 /.vs
 /out/build/x64-Debug
+/SparseSolv/out/build/x64-Debug
+/SparseSolv/.vs
