@@ -177,6 +177,8 @@ public:
 	bool solveSGSMRTR(const slv_int size0, const double conv_cri, const int max_ite, const SparseMatC& matA, const Eigen::VectorXcd& vecB, dcomplex *results, bool init=false);
 	/*--------------------------------------------------*/
 	/*--------------------------------------------------*/
+	/*--------------------------------------------------*/
+	/*--------------------------------------------------*/
 	std::vector<double> getResidualLog_py();
 	bool solveICCG_py(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMat& matA, py::array_t<double> vecB, py::array_t<double> results, bool init=false);
 	bool solveICCG_py(slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMatC& matA, py::array_t<std::complex<double>> vecB, py::array_t<std::complex<double>> results, bool init=false);
@@ -186,6 +188,7 @@ public:
 	bool solveICMRTR_py(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMatC& matA, py::array_t<std::complex<double>> vecB, py::array_t<std::complex<double>> results, bool init=false);
 	bool solveSGSMRTR_py(const slv_int size0, const double conv_cri, const int max_ite, const SparseMat& matA,  py::array_t<double> vecB, py::array_t<double> results, bool init=false);	
 	bool solveSGSMRTR_py(const slv_int size0, const double conv_cri, const int max_ite, const SparseMatC& matA, py::array_t<std::complex<double>> vecB, py::array_t<std::complex<double>> results, bool init=false);
+
 };
 
 /* end of namespace */
