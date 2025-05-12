@@ -9,7 +9,6 @@
 
 
 //#include <BasicDefines.hpp>
-//#include <BasicDefinesC.hpp>
 #include "BasicDefinesC.hpp"
 #include <vector>
 #include <map>
@@ -85,7 +84,7 @@ public:
 	void getCols(slv_int* cols_data1, slv_int* cols_data2) const;								/* 各行の列のスタート・終了位置を返す */
 	auto getColPtr()const{ return matrix.innerIndexPtr(); };									/* 列のポインタを返す */
 	auto getValuePtr()const{ return matrix.valuePtr(); };										/* 値のポインタを返す */
-	slv_int isInclude(slv_int gyo, slv_int target_r) const;										/* i行目にtarget_r列があるかどうか（あったらそのindexを返す） */	
+	bool isInclude(slv_int gyo, slv_int target_r, slv_int& result_retu) const;					/* i行目にtarget_r列があるかどうか（あったらそのindexを返す） */	
 	slv_int getMaxCol()const;																	/* スパース内の最大の列位置を返す */
 	void add(slv_int gyo, slv_int retu, DType val);												/* 一時配列にpush */
 	void getTargetRowVal(slv_int target, std::vector<slv_int>& row_pos, std::vector<DType>& row_val)const;	/* 指定した列の非ゼロの行位置と値をvectorに書き出す */
@@ -179,11 +178,11 @@ SparseMatTMPL<DType>::SparseMatTMPL(const std::vector<Eigen::Triplet<DType>>& sp
 }
 template<typename DType>
 void SparseMatTMPL<DType>::initialize(const std::vector<Eigen::Triplet<DType>>& sparse_data){
-	const int data_size = sparse_data.size();
+	const slv_int data_size = sparse_data.size();
 	/* 最大列をサーチ */
 	slv_int max1 = 0;
 	slv_int max2 = 0;
-	for(int i = 0 ; i < data_size ; i++){
+	for(slv_int i = 0 ; i < data_size ; i++){
 		slv_int gyo = sparse_data[i].row();
 		slv_int retu = sparse_data[i].col();
 		if(max1 < gyo) max1 = gyo;
@@ -370,7 +369,7 @@ void SparseMatTMPL<DType>::fix(bool toSquare){
 		return;
 	}
 	/* Eigenに代入 */
-	slv_int max_retu = -1;
+	slv_int max_retu = 0;
 	std::vector<Eigen::Triplet<DType>> tripletList;
 	for(slv_int i = 0; i < size; i++) {
 		const slv_int ss = tempMat[i].size();
@@ -451,7 +450,7 @@ bool SparseMatTMPL<DType>::isEmpty() const{
 // ● i行目にtarget_r列があるかどうか（あったらそのindexを返す）
 //=======================================================*/
 template<typename DType>
-slv_int SparseMatTMPL<DType>::isInclude(slv_int gyo, slv_int target_r) const{
+bool SparseMatTMPL<DType>::isInclude(slv_int gyo, slv_int target_r, slv_int& result_retu) const{
 	if(is_fix){
 		slv_int count=0;
 		/* ポインタをたどって探す */
@@ -463,8 +462,8 @@ slv_int SparseMatTMPL<DType>::isInclude(slv_int gyo, slv_int target_r) const{
 			const slv_int num = (i==size-1 ? total_size : col_ptr[i+1]);
 			for(int j = col_ptr[i]; j < num; j++) {
 				if(i == gyo && row_ptr[count] == target_r) {
-					return j-col_ptr[i];
-					//return count;
+					result_retu = j-col_ptr[i];
+					return true;
 				}
 				count++;
 			}
@@ -472,13 +471,15 @@ slv_int SparseMatTMPL<DType>::isInclude(slv_int gyo, slv_int target_r) const{
 	}else{
 		slv_int counter=0;
 		for(const auto& itr : tempMat[gyo]){
-			if( itr.first == target_r){
-				return( counter );
+			if( itr.first == target_r){				
+				result_retu = counter;
+				return true;
 			}
 			counter++;
 		}
 	}
-	return(-1);
+	result_retu = -1;
+	return false;
 }
 
 /*//=======================================================
@@ -624,7 +625,7 @@ void SparseMatTMPL<DType>::delFlagPosition(const bool* flag){
 		counter++;
 	}
 	
-	slv_int max_retu = -1;
+	slv_int max_retu = 0;
 	std::vector<Eigen::Triplet<DType>> tripletList;
 	/* 再度探索 */
 	for(slv_int i = 0 ; i < size ; i++){
@@ -669,7 +670,7 @@ void SparseMatTMPL<DType>::DiagFlagPosition(const bool* flag){
 	auto col_ptr1 = matrix.innerIndexPtr();
 	auto val_ptr1 = matrix.valuePtr();
 
-	slv_int max_retu = -1;
+	slv_int max_retu = 0;
 	std::vector<Eigen::Triplet<DType>> tripletList;
 	/* 再度探索 */
 	for(slv_int i = 0 ; i < size ; i++){
@@ -679,7 +680,7 @@ void SparseMatTMPL<DType>::DiagFlagPosition(const bool* flag){
 				slv_int col = col_ptr1[j];
 				if(col == i){
 					tripletList.push_back(Eigen::Triplet<DType>(i, i, 1.0));
-					std::cout << i << ", " << i << ", " << 1.0 << std::endl;
+					//std::cout << i << ", " << i << ", " << 1.0 << std::endl;
 					if(max_retu < i){
 						max_retu = i;
 					}
@@ -697,7 +698,7 @@ void SparseMatTMPL<DType>::DiagFlagPosition(const bool* flag){
 			/* フラグがoffなら加える */
 			DType val = val_ptr1[j];
 			tripletList.push_back(Eigen::Triplet<DType>(i, col, val));
-			std::cout << i << ", " << col << ", " << val << std::endl;
+			//std::cout << i << ", " << col << ", " << val << std::endl;
 			if(max_retu < col){
 				max_retu = col;
 			}
@@ -707,7 +708,7 @@ void SparseMatTMPL<DType>::DiagFlagPosition(const bool* flag){
 	delete[] end_pos1;
 	/* 再セット */
 	max_retu++;
-	std::cout << size << ", " << max_retu << std::endl;
+	//std::cout << size << ", " << max_retu << std::endl;
 	matrix = Eigen::SparseMatrix<DType, Eigen::RowMajor>(size, max_retu);
 	matrix.setFromTriplets(tripletList.begin(), tripletList.end());
 }

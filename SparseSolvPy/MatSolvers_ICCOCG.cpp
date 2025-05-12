@@ -22,7 +22,7 @@ ICCCGソルバ
 bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMatC& matA, const dcomplex *vecB, dcomplex *results, bool init){
 	const slv_int size = size0;
 	dcomplex norm = 0;
-	for(int i = 0 ; i < size ; i++){
+	for(slv_int i = 0 ; i < size ; i++){
 		norm += vecB[i]*vecB[i];
 	}
 	double normB2 = abs(norm);
@@ -38,7 +38,7 @@ bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int
 	dcomplex* vecBa = new dcomplex[size0];
 	dcomplex* results_a = new dcomplex[size0];
 	dcomplex norm = 0;
-	for(int i = 0 ; i < size0 ; i++){
+	for(slv_int i = 0 ; i < size0 ; i++){
 		const dcomplex temp = vecB[i];
 		vecBa[i] = temp;
 		norm += temp*temp;
@@ -47,7 +47,7 @@ bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int
 	double normB2 = abs(norm);
 	normB2 = sqrt(normB2);
 	bool bl = solveICCG(size0, conv_cri, max_ite, accera, normB2, matA, vecBa, results_a, init);
-	for(int i = 0 ; i < size0 ; i++){
+	for(slv_int i = 0 ; i < size0 ; i++){
 		results[i] = results_a[i];
 	}
 	delete[] results_a;
@@ -61,7 +61,7 @@ bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int
 bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMatC& matA, const Eigen::VectorXcd& vecB, dcomplex *results, bool init){
 	dcomplex* vecBa = new dcomplex[size0];
 	dcomplex norm = 0;
-	for(int i = 0 ; i < size0 ; i++){
+	for(slv_int i = 0 ; i < size0 ; i++){
 		const dcomplex temp = vecB(i);
 		vecBa[i] = temp;
 		norm += temp*temp;
@@ -107,8 +107,6 @@ bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int
 	/* 確定 */
 	SparseMatC matL_tr = matL.trans();
 
-	matL.printMat("./ic.csv");
-
 	bool bl= solveICCG(size0, conv_cri, max_ite, normB, diagD, matA.matrix, matL.matrix, matL_tr.matrix, vecB, results, init);
 	delete[] diagD;
 	return bl;
@@ -123,7 +121,7 @@ bool MatSolvers::solveICCG_diag(const slv_int size0, const double conv_cri, cons
 	SparseMatC matDAD = matD*matA*matD;
 
 	dcomplex normBb = 0;
-	for(int i = 0; i < size0; i++){
+	for(slv_int i = 0; i < size0; i++){
 		normBb += vecB2[i]*vecB2[i];
 	}
 	double normBc = abs(normBb);
@@ -158,7 +156,7 @@ bool MatSolvers::solveICCG_diag(const slv_int size0, const double conv_cri, cons
 
 	/* 元に戻す */
 	dcomplex* result_true = matD*results;
-	for(int i = 0; i < size0; i++){
+	for(slv_int i = 0; i < size0; i++){
 		results[i] = result_true[i];
 	}
 	delete[] diagD;
@@ -186,7 +184,7 @@ bool MatSolvers::solveICCG(const slv_int size, const double conv_cri, const int 
 
 	/* 初期設定 */
 	if(init){
-		for(int i = 0 ; i < size ; i++){
+		for(slv_int i = 0 ; i < size ; i++){
 			results[i] = 0;
 		}
 	}

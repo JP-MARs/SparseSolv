@@ -241,7 +241,7 @@ SparseMatC SparseMatC::IC_decomp(dcomplex* diagD, const double accela) const{
 //=======================================================*/
 SparseMatC SparseMatC::diagScaling(dcomplex* trans_vec, const dcomplex* ori_vec) const{
 	SparseMatBaseC mat_ori;
-	SparseMatOperators::diagScaling<SparseMatBaseC, dcomplex, dcomplex>(mat_ori, matrix, trans_vec, ori_vec);
+	SparseMatOperators::diagScalingComplex(mat_ori, matrix, trans_vec, ori_vec);
 	/* 結果を本体行列にムーブし、終わる */
 	SparseMatC mat_ans(std::move(mat_ori));
 	return mat_ans;

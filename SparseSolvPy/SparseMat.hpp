@@ -39,8 +39,8 @@ public:
 	void tempInitialize() {matrix.tempInitialize();};											/* 一時vector行列を作成 */
 	void fix(bool toSquare=false) { matrix.fix(toSquare); };									/* 一時vector配列を確定させる */
 	void refresh(){matrix.refresh();};
-	void resetMat() {matrix.resetMat();};																		/* 確定済み行列の値を０に再セット */
-	slv_int isInclude(slv_int gyo, slv_int target_r)const{return matrix.isInclude(gyo, target_r);};			/* i行目にtarget_r列があるかどうか（あったらそのindexを返す） */	
+	void resetMat() {matrix.resetMat();};																								/* 確定済み行列の値を０に再セット */
+	bool isInclude(slv_int gyo, slv_int target_r, slv_int& result_retu)const{return matrix.isInclude(gyo, target_r, result_retu);};		/* i行目にtarget_r列があるかどうか（あったらそのindexを返す） */	
 	void add(slv_int gyo, slv_int retu, double val){matrix.add(gyo, retu, val);};					/* 一時配列にpush */
 	void getTargetRowVal(slv_int target, std::vector<slv_int>& row_pos, std::vector<double>& row_val)const{matrix.getTargetRowVal(target, row_pos, row_val);};			/* 指定した列の非ゼロの行位置と値をvectorに書き出す */
 	void getTargetColVal(slv_int target, std::vector<slv_int>& col_pos, std::vector<double>& col_val)const{matrix.getTargetColVal(target, col_pos, col_val);};			/* 指定した行の非ゼロの列位置と値をvectorに書き出す */

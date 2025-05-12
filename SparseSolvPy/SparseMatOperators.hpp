@@ -67,8 +67,10 @@ private:
 	static void IC_decomp(Mat1& mat_ans, const Mat1& mat1, DTypeD* diagD, const double accela);
 	/**/
 	/* 対角スケーリング */
-	template<typename Mat1, typename DType1, typename DTypeD>
-	static void diagScaling(Mat1& mat_ans, const Mat1& mat1, DTypeD* trans_vec, const DTypeD* ori_vec);
+	static void diagScaling(SparseMatBaseD& mat_ans, const SparseMatBaseD& mat1, double* trans_vec, const double* ori_vec);
+	/**/
+	/* 対角スケーリング(複素) */
+	static void diagScalingComplex(SparseMatBaseC& mat_ans, const SparseMatBaseC& mat1, dcomplex* trans_vec, const dcomplex* ori_vec);
 	/**/
 	/* A^T*A + epsIを作る（疑似逆行列用） */
 	template<typename Mat1, typename DType1>
@@ -758,57 +760,6 @@ void SparseMatOperators::IC_decomp(Mat1& mat_ans, const Mat1& mat1, DTypeD* diag
 	//delete tempMat;
 }
 
-
-/*//=======================================================
-// ● 対角スケーリング
-//=======================================================*/
-template<typename Mat1, typename DType1, typename DTypeD>
-void SparseMatOperators::diagScaling(Mat1& mat_ans, const Mat1& mat1, DTypeD* trans_vec, const DTypeD* ori_vec){
-	if(!mat1.is_fix || mat1.tempMat != nullptr ){
-		std::cout << "Error ! target mat in disgScale must be clear!"<< std::endl;
-		getchar();
-		exit(1);
-	}
-	const slv_int the_size = mat1.size;
-
-	/* この行列の下三角部分だけ持ってくる */
-	Mat1 tempMat(the_size);
-
-	slv_int* start_pos1 = new slv_int[the_size];
-	slv_int* end_pos1 = new slv_int[the_size];
-	mat1.getCols(start_pos1, end_pos1);
-	auto col_ptr1 = mat1.getColPtr();
-	auto val_ptr1 = mat1.getValuePtr();
-
-	for (slv_int i = 0; i < the_size; i++) {
-		/* i行目にある非ゼロの数をゲット */
-		const slv_int c_size = end_pos1[i];
-		/* i行目の非ゼロの回数だけ列ループをまわす */
-		for(slv_int jj = start_pos1[i]; jj < c_size; jj++) {
-			/* 対角位置なら処理 */
-			if(col_ptr1[jj] == i){
-				DType1 temp1 = sqrt(val_ptr1[jj]);
-				DType1 temp2;
-				try{
-					temp2 = 1.0 / temp1;
-				}
-				catch(...){
-					temp2 = 1.0 / (DBL_EPSILON);
-				}
-				tempMat.add(i, i, temp2);
-				/* 右辺も更新 */
-				trans_vec[i] = ori_vec[i] * temp2;
-				break;
-			}
-		}
-	}
-	tempMat.fix();
-
-	delete[] start_pos1;
-	delete[] end_pos1;
-	/* コピーして終わる */
-	mat_ans = std::move(tempMat);
-}
 
 
 

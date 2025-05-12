@@ -22,21 +22,21 @@ namespace SRLfem{
 //
 // Sort by Algebraic Multi-Color Ordering
 //
-void MatSolvers::sortAlgebraicMultiColor(slv_int size0, const SparseMatBaseD &A, SparseMatBaseD &PA, const double *b, double *Pb, std::vector<std::vector<int>> &color_list, std::vector<int> &ordering, std::vector<int> &reverse_ordering, int num_colors)
+void MatSolvers::sortAlgebraicMultiColor(slv_int size0, const SparseMatBaseD &A, SparseMatBaseD &PA, const double *b, double *Pb, std::vector<std::vector<slv_int>> &color_list, std::vector<slv_int> &ordering, std::vector<slv_int> &reverse_ordering, int num_colors)
 {
     const slv_int numRow = size0;
     int num_colors_ = num_colors;
     // Check maximum NZ element in each row
-    int k = 0;
+    slv_int k = 0;
     auto col_ptr = A.getColPtr();
     auto val_ptr = A.getValuePtr();
     slv_int *start_pos = new slv_int[numRow];
     slv_int *end_pos = new slv_int[numRow];
     A.getCols(start_pos, end_pos);
 
-    for (int i = 0; i < numRow; i++)
+    for (slv_int i = 0; i < numRow; i++)
     {
-        int mu = start_pos[i];
+        slv_int mu = start_pos[i];
         while (col_ptr[mu] != i)
         {
             mu++;
@@ -47,15 +47,15 @@ void MatSolvers::sortAlgebraicMultiColor(slv_int size0, const SparseMatBaseD &A,
         }
     }
 
-    int icolor = 0;
+    slv_int icolor = 0;
     ordering.resize(numRow);
     reverse_ordering.resize(numRow);
     color_list.resize(num_colors_);
-    std::vector<slv_int> color(numRow);
-    for (int i = 0; i < numRow; i++)
+    std::vector<int> color(numRow);
+    for (slv_int i = 0; i < numRow; i++)
     {
         color[i] = -1;
-        int mu = start_pos[i];
+        slv_int mu = start_pos[i];
         while (col_ptr[mu] != i)
         {
             if (color[col_ptr[mu]] == icolor)
@@ -70,11 +70,10 @@ void MatSolvers::sortAlgebraicMultiColor(slv_int size0, const SparseMatBaseD &A,
         color_list[icolor].push_back(i);
         icolor = (icolor + 1) % num_colors_;
     }
-
     k = 0;
-    for (int i = 0; i < color_list.size(); i++)
+    for (slv_int i = 0; i < color_list.size(); i++)
     {
-        for (int j = 0; j < color_list[i].size(); j++)
+        for (slv_int j = 0; j < color_list[i].size(); j++)
         {
             ordering[color_list[i][j]] = k;
             reverse_ordering[k] = color_list[i][j];
@@ -82,7 +81,6 @@ void MatSolvers::sortAlgebraicMultiColor(slv_int size0, const SparseMatBaseD &A,
             k++;
         }
     }
-
     for (slv_int i = 0; i < numRow; i++)
     {
         //slv_int numNZ = end_pos[i] - start_pos[i];
@@ -100,7 +98,7 @@ void MatSolvers::sortAlgebraicMultiColor(slv_int size0, const SparseMatBaseD &A,
 //
 void MatSolvers::makeAlgebraicBlock(slv_int size0, const SparseMatBaseD &A,
                                         SparseMatBaseD &Mb,
-                                        std::vector<std::vector<int>> &block_list,
+                                        std::vector<std::vector<slv_int>> &block_list,
                                         int num_blocks)
 {
     const slv_int numRow = size0;
@@ -175,10 +173,10 @@ void MatSolvers::sortAlgebraicBlockMultiColor(slv_int size0,
                                                     SparseMatBaseD &PA,
                                                     const double *b,
                                                     double *Pb,
-                                                    std::vector<std::vector<int>> &block_list,
-                                                    std::vector<std::vector<int>> &color_list,
-                                                    std::vector<int> &ordering,
-                                                    std::vector<int> &reverse_ordering,
+                                                    std::vector<std::vector<slv_int>> &block_list,
+                                                    std::vector<std::vector<slv_int>> &color_list,
+                                                    std::vector<slv_int> &ordering,
+                                                    std::vector<slv_int> &reverse_ordering,
                                                     int num_blocks,
                                                     int num_colors)
 {
@@ -198,8 +196,8 @@ void MatSolvers::sortAlgebraicBlockMultiColor(slv_int size0,
     SparseMatBaseD PMb(max_block);
     double *y = new double[max_block];
     double *z = new double[max_block];
-    std::vector<int> block_ordering;
-    std::vector<int> reverse_block_ordering;
+    std::vector<slv_int> block_ordering;
+    std::vector<slv_int> reverse_block_ordering;
     sortAlgebraicMultiColor(max_block, Mb, PMb, y, z, color_list, block_ordering, reverse_block_ordering, num_colors);
 
     // color_list: soted by new block index
@@ -207,7 +205,7 @@ void MatSolvers::sortAlgebraicBlockMultiColor(slv_int size0,
     // reverse_block_ordering: new block index -> old block index
     delete[] y;
     delete[] z;
-    int k = 0;
+    slv_int k = 0;
 
     ordering.resize(numRow);
     reverse_ordering.resize(numRow);
@@ -280,14 +278,14 @@ bool MatSolvers::parallelIccgSolv(slv_int size0,
     //        converged : Number of iteration
     //    not converged : -1
 
-    slv_int i;
-    int k;
+    long long i;
+    slv_int k;
     bool is_conv = false;
     double eps2;
     double r2sum;
     double rur0, rur1, pap, alpha, beta;
 
-    slv_int n = size0;
+    long long n = size0;
     Eigen::VectorXd EvecX(n);
 
     eps2 = eps * eps;
@@ -481,9 +479,10 @@ void MatSolvers::parallelIcSolv(slv_int size0, const SparseMatBaseD &L, const Sp
     //
     /*     ver. 1.00 2024.2.21  S. Hiruma */
     /* *********************************************************** */
-    slv_int n, k, l, mu, nu;
-    slv_int col;
-    slv_int bl;
+    slv_int n, mu, nu;
+    long long k, l;
+    long long col;
+    int bl;
     slv_int idx;
     double t;
     double *y;
@@ -648,6 +647,7 @@ bool MatSolvers::solveICCGwithABMC(const slv_int size0, const double conv_cri, c
     SparseMat matL_tr = matL.trans();
     /* ======================================= */
     //Solve main
+
     is_conv = parallelIccgSolv(n, PA.matrix, matL.matrix, matL_tr.matrix, block_list, color_list, diagD, vec_Pb, vec_x, epsilon, max_ite);
 
     for (slv_int i = 0; i < n; i++)

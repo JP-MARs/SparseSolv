@@ -9,9 +9,16 @@
 #include <cfloat>
 #include <omp.h>
 
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/numpy.h>
+#include <pybind11/complex.h>
+namespace py = pybind11;
+
+
+
 /* オリジナル名前空間(静止器/回転機FEMライブラリ) */
 namespace SRLfem{
-
 
 /*
 //=======================================================

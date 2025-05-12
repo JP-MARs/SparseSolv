@@ -42,11 +42,11 @@ bool MatSolversEigenMKL::solveEigenICCG(const slv_int size0, const double conv_c
 bool MatSolversEigenMKL::solveEigenICCG(const slv_int size0, const double conv_cri, const int max_ite, const SparseMat& matA, const double* vecB, double* results, bool init){
 	Eigen::VectorXd vecB2(size0);
 	Eigen::VectorXd results2(size0);
-	for(int i = 0 ; i < size0 ; i++){
+	for(slv_int i = 0 ; i < size0 ; i++){
 		vecB2(i) = vecB[i];
 	}
 	bool bl = solveEigenICCG(size0, conv_cri, max_ite, matA, vecB2, results2, init);
-	for(int i = 0 ; i < size0 ; i++){
+	for(slv_int i = 0 ; i < size0 ; i++){
 		results[i] = results2(i);
 	}
 	return bl;
@@ -74,11 +74,11 @@ bool MatSolversEigenMKL::solveEigenBiCGstab(const slv_int size0, const double co
 bool MatSolversEigenMKL::solveEigenBiCGstab(const slv_int size0, const double conv_cri, const int max_ite, const SparseMat& matA, const double* vecB, double* results, bool init){
 	Eigen::VectorXd vecB2(size0);
 	Eigen::VectorXd results2(size0);
-	for(int i = 0 ; i < size0 ; i++){
+	for(slv_int i = 0 ; i < size0 ; i++){
 		vecB2(i) = vecB[i];
 	}
 	bool bl = solveEigenBiCGstab(size0, conv_cri, max_ite, matA, vecB2, results2, init);
-	for(int i = 0 ; i < size0 ; i++){
+	for(slv_int i = 0 ; i < size0 ; i++){
 		results[i] = results2(i);
 	}
 	return bl;
@@ -107,11 +107,11 @@ bool MatSolversEigenMKL::solveEigenICCG(const slv_int size0, const double conv_c
 bool MatSolversEigenMKL::solveEigenICCG(const slv_int size0, const double conv_cri, const int max_ite, const SparseMatC& matA, const dcomplex* vecB, dcomplex* results, bool init){
 	Eigen::VectorXcd vecB2(size0);
 	Eigen::VectorXcd results2(size0);
-	for(int i = 0 ; i < size0 ; i++){
+	for(slv_int i = 0 ; i < size0 ; i++){
 		vecB2(i) = vecB[i];
 	}
 	bool bl = solveEigenICCG(size0, conv_cri, max_ite, matA, vecB2, results2, init);
-	for(int i = 0 ; i < size0 ; i++){
+	for(slv_int i = 0 ; i < size0 ; i++){
 		results[i] = results2(i);
 	}
 	return bl;
@@ -140,11 +140,11 @@ bool MatSolversEigenMKL::solveEigenBiCGstab(const slv_int size0, const double co
 bool MatSolversEigenMKL::solveEigenBiCGstab(const slv_int size0, const double conv_cri, const int max_ite, const SparseMatC& matA, const dcomplex* vecB, dcomplex* results, bool init){
 	Eigen::VectorXcd vecB2(size0);
 	Eigen::VectorXcd results2(size0);
-	for(int i = 0 ; i < size0 ; i++){
+	for(slv_int i = 0 ; i < size0 ; i++){
 		vecB2(i) = vecB[i];
 	}
 	bool bl = solveEigenBiCGstab(size0, conv_cri, max_ite, matA, vecB2, results2, init);
-	for(int i = 0 ; i < size0 ; i++){
+	for(slv_int i = 0 ; i < size0 ; i++){
 		results[i] = results2(i);
 	}
 	return bl;

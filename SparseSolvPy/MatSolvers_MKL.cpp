@@ -28,50 +28,50 @@ Eigenソルバ
 //=======================================================*/
 template<typename MType, typename VType>
 bool MatSolversEigenMKL::solveMLKpardisoBase(const slv_int size0, const MType& matA, VType* vecB, VType *results, int mat_mode, int num_para=1){
-    const int n = size0;
+    const slv_int n = size0;
     /* スパース形式コピー */
-    int *ia = new int[n+1];
+    slv_int *ia = new int[n+1];
     auto row_ptr = matA.matrix->matrix.outerIndexPtr();
-    int total;
-    int* ja;
+    slv_int total;
+    slv_int* ja;
     VType* a;
     if(mat_mode == 11 || mat_mode == 13){
         total = matA.matrix->matrix.nonZeros();
     }else{
-        int temp = matA.matrix->matrix.nonZeros();
+        slv_int temp = matA.matrix->matrix.nonZeros();
         total = (temp-n)/2 + n;
     }
-    ja = new int[total];
+    ja = new slv_int[total];
     auto col_ptr = matA.matrix->getColPtr();
     a = new VType[total];
     auto val_ptr = matA.matrix->getValuePtr();
     /* 非対称のとき＝そのまま */
     if(mat_mode == 11 || mat_mode == 13){
-        for(int i = 0; i < n; ++i){
+        for(slv_int i = 0; i < n; ++i){
             ia[i] = row_ptr[i];
             ia[i]++;
         }
         ia[size0] = total+1;
-        for (int i = 0; i < total; ++i){
+        for (slv_int i = 0; i < total; ++i){
             ja[i] = col_ptr[i];
             ja[i]++;
             a[i] = val_ptr[i];
         }
     /* 対称のとき＝上三角だけ取り出す */
     }else{
-        int temp_count=0;
-        int push_count=0;
-        for(int i = 0; i < n; ++i){
-            int start = row_ptr[i];
-            int end;
+        slv_int temp_count=0;
+        slv_int push_count=0;
+        for(slv_int i = 0; i < n; ++i){
+            slv_int start = row_ptr[i];
+            slv_int end;
             if(i == n-1){
                 end = total;
             }else{
                 end = row_ptr[i+1];
             }
             bool push=false;
-            for(int j = start ; j < end ; j++){
-                int retu = col_ptr[temp_count];
+            for(slv_int j = start ; j < end ; j++){
+                slv_int retu = col_ptr[temp_count];
                 VType val = val_ptr[temp_count];                
                 if(retu == i){
                     push = true;
@@ -94,7 +94,7 @@ bool MatSolversEigenMKL::solveMLKpardisoBase(const slv_int size0, const MType& m
 
     /* 右辺コピー */
     VType* b = new VType[n];
-    for(int i = 0; i < n; ++i){
+    for(slv_int i = 0; i < n; ++i){
         b[i] = vecB[i];
     }
 
@@ -219,20 +219,20 @@ bool MatSolversEigenMKL::solveMLKpardiso(const slv_int size0, const SparseMatC& 
 bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMat& matA, double* vecB, double *results, int num_para){
     const int n = size0;
     /* スパース形式コピー */
-    int *ia = new int[n+1];
+    slv_int *ia = new int[n+1];
     auto row_ptr = matA.matrix->matrix.outerIndexPtr();
-    const int total = matA.matrix->matrix.nonZeros();
-    int* ja = new int[total];
+    const slv_int total = matA.matrix->matrix.nonZeros();
+    slv_int* ja = new slv_int[total];
     auto col_ptr = matA.matrix->getColPtr();
     double* a = new double[total];
     auto val_ptr = matA.matrix->getValuePtr();
 
-    for(int i = 0; i < n; ++i){
+    for(slv_int i = 0; i < n; ++i){
         ia[i] = row_ptr[i];
         ia[i]++;
     }
     ia[size0] = total+1;
-    for (int i = 0; i < total; ++i){
+    for (slv_int i = 0; i < total; ++i){
         ja[i] = col_ptr[i];
         ja[i]++;
         a[i] = val_ptr[i];
@@ -242,7 +242,7 @@ bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMat& matA, dou
     int mtype = 11;       
     /* 右辺コピー */
     double* b = new double[n];
-    for(int i = 0; i < n; ++i){
+    for(slv_int i = 0; i < n; ++i){
         b[i] = vecB[i];
     }
 
@@ -332,22 +332,22 @@ bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMat& matA, dou
 // ● MKL Pardisoで解く(複素/非対称)
 //=======================================================*/
 bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMatC& matA, dcomplex* vecB, dcomplex* results, int num_para){
-    const int n = size0;
+    const slv_int n = size0;
     /* スパース形式コピー */
-    int *ia = new int[n+1];
+    slv_int *ia = new slv_int[n+1];
     auto row_ptr = matA.matrix->matrix.outerIndexPtr();
-    const int total = matA.matrix->matrix.nonZeros();
-    int* ja = new int[total];
+    const slv_int total = matA.matrix->matrix.nonZeros();
+    slv_int* ja = new slv_int[total];
     auto col_ptr = matA.matrix->getColPtr();
     dcomplex* a = new dcomplex[total];
     auto val_ptr = matA.matrix->getValuePtr();
 
-    for(int i = 0; i < n; ++i){
+    for(slv_int i = 0; i < n; ++i){
         ia[i] = row_ptr[i];
         ia[i]++;
     }
     ia[size0] = total+1;
-    for (int i = 0; i < total; ++i){
+    for (slv_int i = 0; i < total; ++i){
         ja[i] = col_ptr[i];
         ja[i]++;
         a[i] = val_ptr[i];
@@ -357,7 +357,7 @@ bool MatSolvers::solveMLKpardiso(const slv_int size0, const SparseMatC& matA, dc
     int mtype = 13;       
     /* 右辺コピー */
     dcomplex* b = new dcomplex[n];
-    for(int i = 0; i < n; ++i){
+    for(slv_int i = 0; i < n; ++i){
         b[i] = vecB[i];
     }
 

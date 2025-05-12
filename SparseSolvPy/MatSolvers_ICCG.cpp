@@ -27,7 +27,7 @@ ICCGソルバ
 bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMat& matA, const double *vecB, double *results, bool init){
 	const slv_int size = size0;
 	double norm = 0;
-	for(int i = 0 ; i < size ; i++){
+	for(slv_int i = 0 ; i < size ; i++){
 		norm += vecB[i]*vecB[i];
 	}
 	norm = sqrt(norm);
@@ -41,7 +41,7 @@ bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int
 	double* vecBa = new double[size0];
 	double* results_a = new double[size0];
 	double norm=0;
-	for(int i = 0 ; i < size0 ; i++){
+	for(slv_int i = 0 ; i < size0 ; i++){
 		const double temp = vecB[i];
 		vecBa[i] = temp;
 		norm += temp*temp;
@@ -49,7 +49,7 @@ bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int
 	}
 	norm = sqrt(norm);
 	bool bl = solveICCG(size0, conv_cri, max_ite, accera, norm, matA, vecBa, results_a, init);
-	for(int i = 0 ; i < size0 ; i++){
+	for(slv_int i = 0 ; i < size0 ; i++){
 		results[i] = results_a[i];
 	}
 	delete[] vecBa;
@@ -63,7 +63,7 @@ bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int
 bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int max_ite, const double accera, const SparseMat& matA, const Eigen::VectorXd& vecB, double *results, bool init){
 	double* vecBa = new double[size0];
 	double norm=0;
-	for(int i = 0 ; i < size0 ; i++){
+	for(slv_int i = 0 ; i < size0 ; i++){
 		const double temp = vecB(i);
 		vecBa[i] = temp;
 		norm += temp*temp;
@@ -127,7 +127,7 @@ bool MatSolvers::solveICCG_diag(const slv_int size0, const double conv_cri, cons
 	SparseMat matDAD = matD*matA*matD;
 
 	double normB2 = 0;
-	for(int i = 0; i < size0; i++){
+	for(slv_int i = 0; i < size0; i++){
 		normB2 += vecB2[i]*vecB2[i];
 	}
 	normB2 = sqrt(normB2);
@@ -162,7 +162,7 @@ bool MatSolvers::solveICCG_diag(const slv_int size0, const double conv_cri, cons
 
 	/* 元に戻す */
 	double* result_true = matD*results;
-	for(int i = 0; i < size0; i++){
+	for(slv_int i = 0; i < size0; i++){
 		results[i] = result_true[i];
 	}
 	delete[] diagD;
@@ -190,7 +190,7 @@ bool MatSolvers::solveICCG(const slv_int size, const double conv_cri, const int 
 
 	/* 初期設定 */
 	if(init){
-		for(int i = 0 ; i < size ; i++){
+		for(slv_int i = 0 ; i < size ; i++){
 			results[i] = 0;
 		}
 	}
