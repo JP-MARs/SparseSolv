@@ -184,20 +184,24 @@ void SparseMatOperators::dotFix(SparseMatC& matAB, const SparseMatC& matA, const
 /*//=======================================================
 // ● (配列位置確定時)行列AとBとCをかけて、自身ABCに格納する
 //=======================================================*/
-void SparseMatOperators::dotFix(SparseMat& matAB, const SparseMat& matA, const SparseMat& matB, const SparseMat& matC){
-	SparseMatOperators::MatProductFix<SparseMatBaseD, SparseMatBaseD, SparseMatBaseD, SparseMatBaseD, double, double, double, double>(matAB.matrix, matA.matrix, matB.matrix, matC.matrix);
+void SparseMatOperators::dotFix(SparseMat& matABC, const SparseMat& matA, const SparseMat& matB, const SparseMat& matC){
+	SparseMat matBC = matB*matC;
+	SparseMatOperators::MatProductFix<SparseMatBaseD, SparseMatBaseD, SparseMatBaseD, double, double, double>(matABC.matrix, matA.matrix, matBC.matrix);
 }
 /**/
-void SparseMatOperators::dotFix(SparseMatC& matAB, const SparseMat& matA, const SparseMat& matB, const SparseMatC& matC){
-	SparseMatOperators::MatProductFix<SparseMatBaseD, SparseMatBaseD, SparseMatBaseC, SparseMatBaseC, double, double, dcomplex, dcomplex>(matAB.matrix, matA.matrix, matB.matrix, matC.matrix);
+void SparseMatOperators::dotFix(SparseMatC& matABC, const SparseMat& matA, const SparseMat& matB, const SparseMatC& matC){
+	SparseMatC matBC = matB*matC;
+	SparseMatOperators::MatProductFix<SparseMatBaseD, SparseMatBaseC, SparseMatBaseC, double, dcomplex, dcomplex>(matABC.matrix, matA.matrix, matBC.matrix);
 }
 /**/
-void SparseMatOperators::dotFix(SparseMatC& matAB, const SparseMat& matA, const SparseMatC& matB, const SparseMatC& matC){
-	SparseMatOperators::MatProductFix<SparseMatBaseD, SparseMatBaseC, SparseMatBaseC, SparseMatBaseC, double, dcomplex, dcomplex, dcomplex>(matAB.matrix, matA.matrix, matB.matrix, matC.matrix);
+void SparseMatOperators::dotFix(SparseMatC& matABC, const SparseMat& matA, const SparseMatC& matB, const SparseMatC& matC){
+	SparseMatC matBC = matB*matC;
+	SparseMatOperators::MatProductFix<SparseMatBaseD, SparseMatBaseC, SparseMatBaseC, double, dcomplex, dcomplex>(matABC.matrix, matA.matrix, matBC.matrix);
 }
 /**/
-void SparseMatOperators::dotFix(SparseMatC& matAB, const SparseMatC& matA, const SparseMatC& matB, const SparseMatC& matC){
-	SparseMatOperators::MatProductFix<SparseMatBaseC, SparseMatBaseC, SparseMatBaseC, SparseMatBaseC, dcomplex,dcomplex,dcomplex,dcomplex>(matAB.matrix, matA.matrix, matB.matrix, matC.matrix);
+void SparseMatOperators::dotFix(SparseMatC& matABC, const SparseMatC& matA, const SparseMatC& matB, const SparseMatC& matC){
+	SparseMatC matBC = matB*matC;
+	SparseMatOperators::MatProductFix<SparseMatBaseC, SparseMatBaseC, SparseMatBaseC, dcomplex, dcomplex, dcomplex>(matABC.matrix, matA.matrix, matBC.matrix);
 }
 
 /*//=======================================================

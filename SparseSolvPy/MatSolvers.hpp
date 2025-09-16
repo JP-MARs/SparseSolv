@@ -15,10 +15,9 @@
 #include <pybind11/complex.h>
 namespace py = pybind11;
 
-
-
 /* オリジナル名前空間(静止器/回転機FEMライブラリ) */
 namespace SRLfem{
+
 
 /*
 //=======================================================
@@ -38,6 +37,11 @@ private:
 	int diverge_judge_type;
 	double bad_div_val;
 	int bad_div_count_thres;
+	/* 収束判定の正規化タイプ(0:右辺、1:初期残差、2:外部指定) */
+	int conv_normalize_type;
+	double conv_normalize_const;	/* 外部指定する正規化係数 */
+	/* 絶対収束の最小値 */  
+	static constexpr double small_abs_conv_val = 1.0e-12;
 	/**/
 	/*--------------------------------------------------*/
 	/*--------------------------------------------------*/
@@ -56,6 +60,11 @@ private:
 	void IC_frbc_process(const slv_int size0, const SparseMatBaseD& matL, const SparseMatBaseD& matL_tr, const double* diagD, const double* vecR, double* vec);	
 	void IC_frbc_process(const slv_int size0, const SparseMatBaseC& matL, const SparseMatBaseC& matL_tr, const dcomplex* diagD, const dcomplex* vecR, dcomplex* vec);	
 	void IC_frbc_process(const slv_int size0, const SparseMatBaseC& matL, const SparseMatBaseC& matL_tr, const dcomplex* diagD, const Eigen::VectorXcd& EvecR, Eigen::VectorXcd& vec);	
+	/*--------------------------------------------------*/
+	/*--------------------------------------------------*/
+	/* 加速係数の自動決定 */
+	void auto_accel_determine(const slv_int size0, double accel_ini, const SparseMat& matA, double* diagD, SparseMat& matL);
+	void auto_accel_determine(const slv_int size0, double accel_ini, const SparseMatC& matA, dcomplex* diagD, SparseMatC& matL);
 	/*--------------------------------------------------*/
 	/*--------------------------------------------------*/
 	/**/
@@ -136,6 +145,8 @@ public:
 	void setDirvegeType(int x){ diverge_judge_type = x; };
 	void setBadDivVal(double x){bad_div_val=x;};
 	void setBadDivCount(int x){bad_div_count_thres=x;};
+	void setConvNormalizeType(int x){ conv_normalize_type = x; };
+	void setConvNormalizeConst(double x){ conv_normalize_const = x; };
 	/*--------------------------------------------------*/
 	/*--------------------------------------------------*/
 	/* ICCG法 */

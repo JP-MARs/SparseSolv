@@ -40,6 +40,12 @@ public:
 	static bool solveEigenBiCGstab(const slv_int size0, const double conv_cri, const int max_ite, const SparseMatC& matA,  const dcomplex* vecB, dcomplex* results, bool init=false);
 	static bool solveEigenSimplicialLDLT(const slv_int size0, const SparseMat& matA,  const Eigen::VectorXd& vecB, Eigen::VectorXd& results);
 	static bool solveEigenSimplicialLDLT(const slv_int size0, const SparseMatC& matA,  const Eigen::VectorXcd& vecB, Eigen::VectorXcd& results);
+	/* 一部自作改造したBiCGstab：加速係数付きver */
+	static bool solveEigenBiCGstab_accel(const slv_int size0, const double conv_cri, const int max_ite, const SparseMat& matA, const Eigen::VectorXd& vecB, Eigen::VectorXd& results, bool init=false);
+	static bool solveEigenBiCGstab_accel(const slv_int size0, const double conv_cri, const int max_ite, const SparseMat& matA, const double* vecB, double* results, bool init=true);
+	static bool solveEigenBiCGstab_accel(const slv_int size0, const double conv_cri, const int max_ite, const SparseMatC& matA, const Eigen::VectorXcd& vecB, Eigen::VectorXcd& results, bool init=false);
+	static bool solveEigenBiCGstab_accel(const slv_int size0, const double conv_cri, const int max_ite, const SparseMatC& matA,  const dcomplex* vecB, dcomplex* results, bool init=false);
+	/*  */
 	//
 	/* MKLソルバのラッパー */
 	//

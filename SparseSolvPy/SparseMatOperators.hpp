@@ -99,9 +99,6 @@ private:
 	/* (配列位置確定時)行列AとBをかけて、自身ABに格納する */
 	template<typename Mat1, typename Mat2, typename Mat0, typename DType1, typename DType2, typename DType0> 
 	static void MatProductFix(Mat0& matAB, const Mat1& matA, const Mat2& matB);
-	/* (配列位置確定時)行列AとBとCをかけて、自身ABCに格納する */
-	template<typename Mat1, typename Mat2, typename Mat3, typename Mat0, typename DType1, typename DType2, typename DType3, typename DType0> 
-	static void MatProductFix(Mat0& matABC, const Mat1& matA, const Mat2& matB, const Mat3& matC);
 	/**/
 public:
 	/* (a1*mat1 + a2*mat2)で、mat2に足す位置をpos1,pos2ずらすを計算 */
@@ -129,15 +126,17 @@ public:
 	/* (配列位置確定時)自身に、行列A±B±Cを加える(a1*A+a2*B+a3*C) */
 	static void plusFix(SparseMat& matABC, const SparseMat& matA, const SparseMat& matB, const SparseMat& matC, double a1=1.0, double a2=1.0, double a3=1.0);
 	static void plusFix(SparseMatC& matABC, const SparseMatC& matA, const SparseMatC& matB, const SparseMatC& matC, double a1=1.0, double a2=1.0, double a3=1.0);
+
+	/* **こいつらは自作掛け算なので、たぶん普通に上で定義している掛け算を使ったほうが速い */
 	/* (配列位置確定時)行列AとBをかけて、自身ABに格納する */
 	static void dotFix(SparseMat& matAB, const SparseMat& matA, const SparseMat& matB);
 	static void dotFix(SparseMatC& matAB, const SparseMat& matA, const SparseMatC& matB);
 	static void dotFix(SparseMatC& matAB, const SparseMatC& matA, const SparseMatC& matB);
 	/* (配列位置確定時)行列AとBとCをかけて、自身ABCに格納する */
-	static void dotFix(SparseMat& matAB, const SparseMat& matA, const SparseMat& matB, const SparseMat& matC);
-	static void dotFix(SparseMatC& matAB, const SparseMat& matA, const SparseMat& matB, const SparseMatC& matC);
-	static void dotFix(SparseMatC& matAB, const SparseMat& matA, const SparseMatC& matB, const SparseMatC& matC);
-	static void dotFix(SparseMatC& matAB, const SparseMatC& matA, const SparseMatC& matB, const SparseMatC& matC);
+	static void dotFix(SparseMat& matABC, const SparseMat& matA, const SparseMat& matB, const SparseMat& matC);
+	static void dotFix(SparseMatC& matABC, const SparseMat& matA, const SparseMat& matB, const SparseMatC& matC);
+	static void dotFix(SparseMatC& matABC, const SparseMat& matA, const SparseMatC& matB, const SparseMatC& matC);
+	static void dotFix(SparseMatC& matABC, const SparseMatC& matA, const SparseMatC& matB, const SparseMatC& matC);
 };
 
 
@@ -438,7 +437,7 @@ void SparseMatOperators::productVecMat2(DTypeA** ans, const Mat1& mat1, const Ma
 template<typename Mat1, typename Mat2, typename Mat3, typename Mat0, typename DType1, typename DType2, typename DType3, typename DType0> 
 void SparseMatOperators::MatProduct(Mat0& mat_ans, const Mat1& matA, const Mat2& matB, const Mat3& matC){
 	auto tempSparse = matA.matrix * matB.matrix * matC.matrix;
-	tempSparse.pruned();
+	//tempSparse.pruned();
 	Mat0 matABC_damy( std::move(tempSparse) );
 	mat_ans = std::move(matABC_damy);
 }
@@ -757,7 +756,6 @@ void SparseMatOperators::IC_decomp(Mat1& mat_ans, const Mat1& mat1, DTypeD* diag
 	delete[] end_pos1;
 	/* コピーして終わる */
 	mat_ans = std::move(tempMat);
-	//delete tempMat;
 }
 
 
@@ -994,7 +992,8 @@ void SparseMatOperators::MatProductFix(Mat0& matAB, const Mat1& matA, const Mat2
 			for(slv_int bj = start_pos2[row] ; bj < the_sizeb ; bj++){
 				slv_int rowB = col_ptr2[bj];
 				DType0 bvalue = val_ptr2[bj];
-				matAB.add_typeN(i, rowB, avalue*bvalue);
+				matAB.matrix.coeffRef(i, rowB) += avalue*bvalue;
+				//matAB.add_typeN(i, rowB, avalue*bvalue);
 			}
 		}
 	}
@@ -1004,85 +1003,6 @@ void SparseMatOperators::MatProductFix(Mat0& matAB, const Mat1& matA, const Mat2
 	delete[] end_pos2;
 }
 
-
-/*//=======================================================
-// ●(配列位置確定時)行列AとBとCをかけて、自身ABCに格納する
-//=======================================================*/
-template<typename Mat1, typename Mat2, typename Mat3, typename Mat0, typename DType1, typename DType2, typename DType3, typename DType0> 
-void SparseMatOperators::MatProductFix(Mat0& matABC, const Mat1& matA, const Mat2& matB, const Mat3& matC){
-	if(!matABC.is_fix){
-		return;
-	}
-	matABC.resetMat();
-
-	const slv_int size1 = matA.getSize();
-	slv_int* start_pos1 = new slv_int[size1];
-	slv_int* end_pos1 = new slv_int[size1];
-	matA.getCols(start_pos1, end_pos1);
-	auto col_ptr1 = matA.getColPtr();//matrix.innerIndexPtr();
-	auto val_ptr1 = matA.getValuePtr();//matrix.valuePtr();
-
-	const slv_int size2 = matB.getSize();
-	slv_int* start_pos2 = new slv_int[size2];
-	slv_int* end_pos2 = new slv_int[size2];
-	matB.getCols(start_pos2, end_pos2);
-	auto col_ptr2 = matB.getColPtr();//matrix.innerIndexPtr();
-	auto val_ptr2 = matB.getValuePtr();//matrix.valuePtr();
-
-	const slv_int size3 = matC.getSize();
-	slv_int* start_pos3 = new slv_int[size3];
-	slv_int* end_pos3 = new slv_int[size3];
-	matC.getCols(start_pos3, end_pos3);
-	auto col_ptr3 = matC.getColPtr();//matrix.innerIndexPtr();
-	auto val_ptr3 = matC.getValuePtr();//matrix.valuePtr();
-
-	/* まずBとCをかける */
-	Mat0 matBC(size2);
-	/* Bのi行目 */
-#ifdef OMP_USING_MAT_SOL
-#pragma omp parallel for
-#endif
-	for(slv_int i = 0 ; i < size2 ; i++){
-		const slv_int the_size = end_pos2[i];
-		/* i行目のAが持つ列を探索 */
-		for(slv_int aj = start_pos2[i] ; aj < the_size ; aj++){
-			slv_int row = col_ptr2[aj];
-			DType0 avalue = val_ptr2[aj];
-			/* Aが列をもつ場所rowのに対応したCの行を探索 */
-			const slv_int the_sizeb = end_pos3[row];
-			for(slv_int bj = start_pos3[row] ; bj < the_sizeb ; bj++){
-				slv_int rowB = col_ptr3[bj];
-				DType0 bvalue = val_ptr3[bj];
-				matBC.add(i, rowB, avalue*bvalue);
-			}
-		}
-	}
-	delete[] start_pos2;
-	delete[] end_pos2;
-	delete[] start_pos3;
-	delete[] end_pos3;
-
-	/* AとBCをかける */	
-#ifdef OMP_USING_MAT_SOL
-#pragma omp parallel for
-#endif
-	for(slv_int i = 0 ; i < size1 ; i++){
-		const slv_int the_size = end_pos1[i];
-		/* i行目のAが持つ列を探索 */
-		for(slv_int aj = start_pos1[i] ; aj < the_size ; aj++){
-			slv_int row = col_ptr1[aj];
-			DType0 avalue = val_ptr1[aj];
-			/* Cが列をもつ場所rowのに対応した(AC)の行を探索 */
-			for(auto itr : matBC.tempMat[row]){
-				slv_int rowB = itr.first;
-				DType0 bvalue = itr.second;
-				matABC.add_typeN(i, rowB, avalue*bvalue);
-			}
-		}
-	}
-	delete[] start_pos1;
-	delete[] end_pos1;
-}
 
 
 /* end of namespace */

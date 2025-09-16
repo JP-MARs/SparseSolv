@@ -90,21 +90,9 @@ bool MatSolvers::solveICCG(const slv_int size0, const double conv_cri, const int
 	double accela_val = accera;
 	SparseMat matL;
 	/* 加速係数が負なら自動決定モードへ */
-	if(accera < -1){
-		accela_val = 1.05;
-		/* 対角が正になるまで実施 */
-		for(int kkk = 0; kkk < 10; kkk++){
-			matL = matA.IC_decomp(diagD, accela_val);
-			bool ok = true;
-			for(slv_int i = 0; i < size0; i++){
-				ok &= (diagD[i] > 0);
-			}
-			if(ok){
-				break;
-			}
-			accela_val += 0.05;
-		}
-	} else{
+	if(accera < 0){
+		auto_accel_determine(size0, accera, matA, diagD, matL);
+	}else{
 		matL = matA.IC_decomp(diagD, accera);
 	}
 	/* 確定 */
@@ -137,22 +125,10 @@ bool MatSolvers::solveICCG_diag(const slv_int size0, const double conv_cri, cons
 	double accela_val = accera;
 	SparseMat matL;
 	/* 加速係数が負なら自動決定モードへ */
-	if(accera < -1){
-		accela_val = 1.05;
-		/* 対角が正になるまで実施 */
-		for(int kkk = 0; kkk < 10; kkk++){
-			matL = matDAD.IC_decomp(diagD, accela_val);
-			bool ok = true;
-			for(slv_int i = 0; i < size0; i++){
-				ok &= (diagD[i] > 0);
-			}
-			if(ok){
-				break;
-			}
-			accela_val += 0.05;
-		}
-	} else{
-		matL = matDAD.IC_decomp(diagD, accera);
+	if(accera < 0){
+		auto_accel_determine(size0, accera, matA, diagD, matL);
+	}else{
+		matL = matA.IC_decomp(diagD, accera);
 	}
 	/* 確定 */
 	SparseMat matL_tr = matL.trans();
@@ -219,12 +195,22 @@ bool MatSolvers::solveICCG(const slv_int size, const double conv_cri, const int 
 	IC_frbc_process(size, matL, matL_tr, diagD, EvecR, EvecP);
 	EvecLDV = EvecP;
 
+	/* 絶対収束判定値をセット */
+	const double abs_conv_cri = (normB*conv_cri*0.9 < small_abs_conv_val ? small_abs_conv_val : normB*conv_cri*0.9);
+
 	/* 最初から答えだったら何もしない */
 	const double first_normR = EvecR.norm() / normB;
-	if(first_normR < conv_cri*0.01){
+	if(first_normR < conv_cri*0.1 || first_normR*normB < abs_conv_cri*0.1){
 		delete[] start_posA;
 		delete[] end_posA;
 		return true;
+	}
+	/* 残差正規化方法をセット */
+	double normalizer = normB;
+	if(conv_normalize_type == 1){
+		normalizer = first_normR;
+	}else if(conv_normalize_type == 2){
+		normalizer = conv_normalize_const;
 	}
 
 	/* 初期値 */
@@ -271,14 +257,15 @@ bool MatSolvers::solveICCG(const slv_int size, const double conv_cri, const int 
 			results[i] += alpha * EvecP(i);
 		}
 		EvecR = EvecR - alpha * EtempAP;
-		const double normR = EvecR.norm() / normB;
+		const double pure_norm = EvecR.norm();
+		const double normR = pure_norm / normalizer;
 
 		/* フラグがonなら、残差保存 */
 		if(is_save_residual_log){
 			residual_log.push_back(normR);
 		}
 		/* 収束判定 */
-		if(normR < conv_cri){
+		if(normR < conv_cri || pure_norm < abs_conv_cri){
 			//std::cout << "Solved!!! -- " << normR  << " " << It << ", " << temp << ", " << temp2  <<std::endl;
 			is_conv = true;
 			break;

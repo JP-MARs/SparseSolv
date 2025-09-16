@@ -21,7 +21,7 @@ namespace SRLfem{
 
 
 /* ソルバ内のint定義 */
-using slv_int = size_t;//int;
+using slv_int = int;
 
 /* プロトタイプ宣言 */
 class SparseMat;
@@ -87,6 +87,8 @@ public:
 	bool isInclude(slv_int gyo, slv_int target_r, slv_int& result_retu) const;					/* i行目にtarget_r列があるかどうか（あったらそのindexを返す） */	
 	slv_int getMaxCol()const;																	/* スパース内の最大の列位置を返す */
 	void add(slv_int gyo, slv_int retu, DType val);												/* 一時配列にpush */
+	void pruned(double thres=1.0e-12);															/* ほぼゼロになっている非ゼロ位置の削除 */
+	void back_unfixed();																		/* 固定済みの状態から作成中状態に戻す */
 	void getTargetRowVal(slv_int target, std::vector<slv_int>& row_pos, std::vector<DType>& row_val)const;	/* 指定した列の非ゼロの行位置と値をvectorに書き出す */
 	void getTargetColVal(slv_int target, std::vector<slv_int>& col_pos, std::vector<DType>& col_val)const;	/* 指定した行の非ゼロの列位置と値をvectorに書き出す */
 	void operator*=(const DType xval);															/* 自身にスカラ積 */
@@ -95,7 +97,7 @@ public:
 	/*---------------------------------------------*/
 	/*---------------------------------------------*/
 	void printMat(const std::string& str="Mat.csv");
-	void print() { std::cout << matrix << std::endl;};
+	void print() const { std::cout << matrix << std::endl;};
 	void readMat(const std::string& filename);
 };
 
@@ -389,7 +391,7 @@ void SparseMatTMPL<DType>::fix(bool toSquare){
 	}
 	max_retu++;
 	/* Eigenに確定(列方向の最大値も指定する必要あり)。 */
-	/* toSquare=true なら、行数の方が大きいなら正方、列の方が大きいなら長方形サイズにする */
+	/* toSquare=true なら、行数の方が大きいなら正方サイズにする */
 	/* toSquare=false なら、長方形のまま */
 	if(toSquare){		
 		if(max_retu < size){
@@ -597,6 +599,48 @@ slv_int SparseMatTMPL<DType>::getMaxCol()const{
 template<typename DType>
 void SparseMatTMPL<DType>::operator*=(const DType xval){
 	this->matrix *= xval;
+}
+
+/*//=======================================================
+// ● ほぼゼロになっている非ゼロ位置の削除
+//=======================================================*/
+template<typename DType>
+void SparseMatTMPL<DType>::pruned(double thres){
+	if(is_fix){
+		matrix.pruned(thres);
+	}
+}
+
+/*//=======================================================
+// ● 固定済みの状態から作成中状態に戻す
+//=======================================================*/
+template<typename DType>
+void SparseMatTMPL<DType>::back_unfixed(){
+	/* 仮行列作成 */
+	tempMat = std::make_unique<std::map<slv_int, DType>[]>(size);
+	for(slv_int i = 0 ; i < size ; i++){
+		tempMat[i].clear();
+	}
+
+	/* 仮行列に再コピー */
+	slv_int* start_pos1 = new slv_int[size];
+	slv_int* end_pos1 = new slv_int[size];
+	this->getCols(start_pos1, end_pos1);
+	auto col_ptr1 = matrix.innerIndexPtr();
+	auto val_ptr1 = matrix.valuePtr();
+	for(slv_int i = 0 ; i < size ; i++){
+		for(slv_int j = start_pos1[i] ; j < end_pos1[i] ; j++){
+			slv_int col = col_ptr1[j];
+			DType val = val_ptr1[j];
+			tempMat[i][col] = val;
+		}
+	}
+	delete[] start_pos1;
+	delete[] end_pos1;
+	/* 確定済み行列は削除 */
+	is_fix = false;
+	matrix.data().squeeze(); 
+	matrix.resize(1,1);
 }
 
 

@@ -21,6 +21,16 @@ SparseMat::SparseMat(slv_int n_nonZero, const std::vector<slv_int>& rows, const 
 	matrix.initialize(n_nonZero, rows, cols, vals);
 }
 
+/*//=======================================================
+// ● 行列の完全初期化
+//=======================================================*/
+void SparseMat::all_initialize(slv_int x){
+	matrix.is_fix = false;
+	matrix.tempMat.reset();
+	matrix.matrix.data().squeeze(); 
+	matrix.matrix.resize(1,1);
+	matrix.tempInitialize(x);
+}
 
 /*//=======================================================
 // ● コピーコンストラクタたち
@@ -120,14 +130,14 @@ SparseMatC SparseMat::operator*(const dcomplex x) const {
 // ● 行列-行列積
 //=======================================================*/
 SparseMat SparseMat::operator*(const SparseMat& mat) const {
-	Eigen::SparseMatrix<double, Eigen::RowMajor> tempMat = ( (matrix.matrix) * (mat.matrix.matrix) ).pruned();
+	Eigen::SparseMatrix<double, Eigen::RowMajor> tempMat = ( (matrix.matrix) * (mat.matrix.matrix) );//.pruned();
 	SparseMatBaseD mat_ori(std::move(tempMat));
 	/* 結果を本体行列にムーブし、終わる */
 	SparseMat mat_ans(std::move(mat_ori));
 	return mat_ans;
 }
 SparseMatC SparseMat::operator*(const SparseMatC& mat) const {
-	Eigen::SparseMatrix<dcomplex, Eigen::RowMajor> tempMat = ((matrix.matrix) * (mat.matrix.matrix)).pruned();
+	Eigen::SparseMatrix<dcomplex, Eigen::RowMajor> tempMat = ((matrix.matrix) * (mat.matrix.matrix));//.pruned();
 	SparseMatBaseC mat_ori(std::move(tempMat));
 	/* 結果を本体行列にムーブし、終わる */
 	SparseMatC mat_ans(std::move(mat_ori));
