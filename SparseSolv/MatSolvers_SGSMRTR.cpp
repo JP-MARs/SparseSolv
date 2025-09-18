@@ -1,8 +1,8 @@
-
+ï»¿
 #include "MatSolvers.hpp"
 #include "SparseMatOperators.hpp"
 
-/* ê—p–¼‘O‹óŠÔ */
+/* å°‚ç”¨åå‰ç©ºé–“ */
 namespace SRLfem{
 
 
@@ -11,14 +11,14 @@ namespace SRLfem{
 //=======================================================
 //=======================================================
 //=======================================================
-MRTRƒ\ƒ‹ƒo
+MRTRã‚½ãƒ«ãƒ
 //=======================================================
 //=======================================================
 */
 
 
 /*//=======================================================
-// œ MRTR‚Å‰ğ‚­(‰E•Óƒmƒ‹ƒ€“à•”ŒvZƒpƒ^[ƒ“)
+// â— MRTRã§è§£ã(å³è¾ºãƒãƒ«ãƒ å†…éƒ¨è¨ˆç®—ãƒ‘ã‚¿ãƒ¼ãƒ³)
 //=======================================================*/
 bool MatSolvers::solveSGSMRTR(const slv_int size0, const double conv_cri, const int max_ite, const SparseMat& matA, const double *vecB, double *results, bool init){
 	const slv_int size = size0;
@@ -32,7 +32,7 @@ bool MatSolvers::solveSGSMRTR(const slv_int size0, const double conv_cri, const 
 
 
 /*//=======================================================
-// œ MRTR‚Å‰ğ‚­(“ü—Í‰E•Ó‚ªVector)
+// â— MRTRã§è§£ã(å…¥åŠ›å³è¾ºãŒVector)
 //=======================================================*/
 bool MatSolvers::solveSGSMRTR(const slv_int size0, const double conv_cri, const int max_ite, const SparseMat& matA, const std::vector<double>& vecB, std::vector<double>& results, bool init){
 	double* vecBa = new double[size0];
@@ -55,7 +55,7 @@ bool MatSolvers::solveSGSMRTR(const slv_int size0, const double conv_cri, const 
 }
 
 /*//=======================================================
-// œ MRTR‚Å‰ğ‚­(“ü—Í‰E•Ó‚ªEigen)
+// â— MRTRã§è§£ã(å…¥åŠ›å³è¾ºãŒEigen)
 //=======================================================*/
 bool MatSolvers::solveSGSMRTR(const slv_int size0, const double conv_cri, const int max_ite, const SparseMat& matA, const Eigen::VectorXd& vecB, double *results, bool init){
 	double* vecBa = new double[size0];
@@ -72,10 +72,10 @@ bool MatSolvers::solveSGSMRTR(const slv_int size0, const double conv_cri, const 
 }
 
 /*//=======================================================
-// œ MRTR‚Å‰ğ‚­EŠO•”Às–{‘Ì
+// â— MRTRã§è§£ããƒ»å¤–éƒ¨å®Ÿè¡Œæœ¬ä½“
 //=======================================================*/
 bool MatSolvers::solveSGSMRTR(const slv_int size0, const double conv_cri, const int max_ite, const double normB, const SparseMat& matA, const double *vecB, double *results, bool init){
-	/* ‘ÎŠpƒXƒP[ƒŠƒ“ƒO */
+	/* å¯¾è§’ã‚¹ã‚±ãƒ¼ãƒªãƒ³ã‚° */
 	double* vecB2 = new double[size0];
 	SparseMat matD = matA.diagScaling(vecB2, vecB);
 	SparseMat matDAD = matD*matA*matD;
@@ -86,14 +86,14 @@ bool MatSolvers::solveSGSMRTR(const slv_int size0, const double conv_cri, const 
 	}
 	normB2 = sqrt(normB2);
 
-	/* DAD‚Ì‰ºOŠp‚ğæ“¾ */
+	/* DADã®ä¸‹ä¸‰è§’ã‚’å–å¾— */
 	SparseMat matL = matDAD.getMatLower();
-	/* DAD‚ÌãOŠp‚ğæ“¾ */
+	/* DADã®ä¸Šä¸‰è§’ã‚’å–å¾— */
 	SparseMat matL_tr = matL.trans();
 
 	bool bl= solveSGSMRTR(size0, conv_cri, max_ite, normB, matDAD.matrix, matL.matrix, matL_tr.matrix, vecB2, results, init);
 	delete[] vecB2;
-	/* Œ³‚É–ß‚· */
+	/* å…ƒã«æˆ»ã™ */
 	double* result_true = matD*results;
 	for(slv_int i = 0; i < size0; i++){
 		results[i] = result_true[i];
@@ -107,7 +107,7 @@ bool MatSolvers::solveSGSMRTR(const slv_int size0, const double conv_cri, const 
 
 
 /*//=======================================================
-// œ MRTR‚Å‰ğ‚­(‰E•Óƒmƒ‹ƒ€“à•”ŒvZƒpƒ^[ƒ“)
+// â— MRTRã§è§£ã(å³è¾ºãƒãƒ«ãƒ å†…éƒ¨è¨ˆç®—ãƒ‘ã‚¿ãƒ¼ãƒ³)
 //=======================================================*/
 bool MatSolvers::solveSGSMRTR(const slv_int size0, const double conv_cri, const int max_ite, const SparseMatC& matA, const dcomplex *vecB, dcomplex *results, bool init){
 	const slv_int size = size0;
@@ -122,7 +122,7 @@ bool MatSolvers::solveSGSMRTR(const slv_int size0, const double conv_cri, const 
 
 
 /*//=======================================================
-// œ MRTR‚Å‰ğ‚­(“ü—Í‰E•Ó‚ªVector)
+// â— MRTRã§è§£ã(å…¥åŠ›å³è¾ºãŒVector)
 //=======================================================*/
 bool MatSolvers::solveSGSMRTR(const slv_int size0, const double conv_cri, const int max_ite, const SparseMatC& matA, const std::vector<dcomplex>& vecB, std::vector<dcomplex>& results, bool init){
 	dcomplex* vecBa = new dcomplex[size0];
@@ -146,7 +146,7 @@ bool MatSolvers::solveSGSMRTR(const slv_int size0, const double conv_cri, const 
 }
 
 /*//=======================================================
-// œ MRTR‚Å‰ğ‚­(“ü—Í‰E•Ó‚ªEigen)
+// â— MRTRã§è§£ã(å…¥åŠ›å³è¾ºãŒEigen)
 //=======================================================*/
 bool MatSolvers::solveSGSMRTR(const slv_int size0, const double conv_cri, const int max_ite, const SparseMatC& matA, const Eigen::VectorXcd& vecB, dcomplex *results, bool init){
 	dcomplex* vecBa = new dcomplex[size0];
@@ -164,10 +164,10 @@ bool MatSolvers::solveSGSMRTR(const slv_int size0, const double conv_cri, const 
 }
 
 /*//=======================================================
-// œ MRTR‚Å‰ğ‚­EŠO•”Às–{‘Ì
+// â— MRTRã§è§£ããƒ»å¤–éƒ¨å®Ÿè¡Œæœ¬ä½“
 //=======================================================*/
 bool MatSolvers::solveSGSMRTR(const slv_int size0, const double conv_cri, const int max_ite, const double normB, const SparseMatC& matA, const dcomplex *vecB, dcomplex *results, bool init){
-	/* ‘ÎŠpƒXƒP[ƒŠƒ“ƒO */
+	/* å¯¾è§’ã‚¹ã‚±ãƒ¼ãƒªãƒ³ã‚° */
 	dcomplex* vecB2 = new dcomplex[size0];
 	SparseMatC matD = matA.diagScaling(vecB2, vecB);
 	SparseMatC matDAD = matD*matA*matD;
@@ -179,14 +179,14 @@ bool MatSolvers::solveSGSMRTR(const slv_int size0, const double conv_cri, const 
 	double norm0 = abs(normB2);
 	double norm00 = sqrt(norm0);
 
-	/* DAD‚Ì‰ºOŠp‚ğæ“¾ */
+	/* DADã®ä¸‹ä¸‰è§’ã‚’å–å¾— */
 	SparseMatC matL = matDAD.getMatLower();
-	/* DAD‚ÌãOŠp‚ğæ“¾ */
+	/* DADã®ä¸Šä¸‰è§’ã‚’å–å¾— */
 	SparseMatC matL_tr = matL.trans();
 
 	bool bl= solveSGSMRTR(size0, conv_cri, max_ite, norm00, matDAD.matrix, matL.matrix, matL_tr.matrix, vecB2, results, init);
 	delete[] vecB2;
-	/* Œ³‚É–ß‚· */
+	/* å…ƒã«æˆ»ã™ */
 	dcomplex* result_true = matD*results;
 	for(slv_int i = 0; i < size0; i++){
 		results[i] = result_true[i];
@@ -200,12 +200,12 @@ bool MatSolvers::solveSGSMRTR(const slv_int size0, const double conv_cri, const 
 /*========================================*/
 /*========================================*/
 /*//=======================================================
-// œ MRTR‚Å‰ğ‚­i–{‘Ìj
+// â— MRTRã§è§£ãï¼ˆæœ¬ä½“ï¼‰
 //=======================================================*/
 bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const int max_ite, const double normB, 
 	const SparseMatBaseD& matA, const SparseMatBaseD& matL, const SparseMatBaseD& matL_tr, const double *vecB, double *results, bool init){
 
-	/* —v‘fŠm•Û */
+	/* è¦ç´ ç¢ºä¿ */
 	Eigen::VectorXd EvecP = Eigen::VectorXd::Zero(size);
 	Eigen::VectorXd EvecRd(size);
 	Eigen::VectorXd EvecU(size);
@@ -213,7 +213,7 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 	Eigen::VectorXd EvecY(size);
 	Eigen::VectorXd EvecARd(size);
 	
-	/* ‰Šúİ’è */
+	/* åˆæœŸè¨­å®š */
 	if(init){
 		for(slv_int i = 0 ; i < size ; i++){
 			results[i] = 0;
@@ -239,26 +239,26 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 		for(slv_int j = start_posA[ii] ; j < c_size ; j++){
 			ap_temp += val_ptrA[j] * results[col_ptrA[j]];
 		}
-		/* ‰Šúc·“™ŒvZ*/
+		/* åˆæœŸæ®‹å·®ç­‰è¨ˆç®—*/
 		EvecRd(ii) = vecB[ii] - ap_temp;
 		EvecU(ii) = vecB[ii];
 	}
 
-	/* â‘Îû‘©”»’è’l‚ğƒZƒbƒg */
+	/* çµ¶å¯¾åæŸåˆ¤å®šå€¤ã‚’ã‚»ãƒƒãƒˆ */
 	const double abs_conv_cri = (normB*conv_cri*0.9 < small_abs_conv_val ? small_abs_conv_val : normB*conv_cri*0.9);
 
-	/* Å‰‚©‚ç“š‚¦‚¾‚Á‚½‚ç‰½‚à‚µ‚È‚¢ */
+	/* æœ€åˆã‹ã‚‰ç­”ãˆã ã£ãŸã‚‰ä½•ã‚‚ã—ãªã„ */
 	const double first_normR = EvecRd.norm() / normB;
 	if(first_normR < conv_cri*0.1 || first_normR*normB < abs_conv_cri*0.1){
 		delete[] start_posA;
 		delete[] end_posA;
 		return true;
 	}
-	/* û‘©”»’è—p‚Ì•â³|B| */
+	/* åæŸåˆ¤å®šç”¨ã®è£œæ­£|B| */
 	Eigen::VectorXd tempVec = matL.matrix*EvecU;
 	const double normBd = tempVec.norm();
 
-	/* c·³‹K‰»•û–@‚ğƒZƒbƒg */
+	/* æ®‹å·®æ­£è¦åŒ–æ–¹æ³•ã‚’ã‚»ãƒƒãƒˆ */
 	double normalizer = normBd;
 	if(conv_normalize_type == 1){
 		normalizer = first_normR;
@@ -266,14 +266,14 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 		normalizer = conv_normalize_const;
 	}
 
-	/* ‘Oˆ—rd=C^-1 * r */
+	/* å‰å‡¦ç†rd=C^-1 * r */
 	tempVec = EvecRd;
 	fr_process(size, matL, tempVec, EvecRd);	
 	/* y0 = -r0 */
 	EvecY = -1.0*EvecRd;
 
 
-	/* Å—ÇŒ‹‰Ê‚Ì•Û‘¶—piƒtƒ‰ƒO‚ªon‚È‚çj */
+	/* æœ€è‰¯çµæœã®ä¿å­˜ç”¨ï¼ˆãƒ•ãƒ©ã‚°ãŒonãªã‚‰ï¼‰ */
 	double* best_results=nullptr;
 	double best_resi_value = 1.0e+6;
 	if(is_save_best){
@@ -287,7 +287,7 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 	double zeta_old=1.0;
 	double eta;
 	double nu=1.0;
-	/* ”½•œŠJn */
+	/* åå¾©é–‹å§‹ */
 	int It = 0;
 	for(It = 0; It < max_ite; It++){
 		/* u = C^tr*rd */
@@ -304,23 +304,23 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 		double Ar_Ar =  EvecARd.dot(EvecARd);
 
 		if(It == 0){
-			/* ƒÄ(0) */
+			/* Î¶(0) */
 			zeta = Ar_r / Ar_Ar;
 			zeta_old = zeta;
-			/* ƒÅ(0) */
+			/* Î·(0) */
 			eta = 0.0;
 		} else{
 			/* (A*rd(k), y(k)) */
 			double Ar_y = EvecARd.dot(EvecY);
-			/* ƒÄ(k), ƒÅ(k) ‚Ì®‚Ì•ª•ê */
+			/* Î¶(k), Î·(k) ã®å¼ã®åˆ†æ¯ */
 			double temp = 1.0 / (nu * Ar_Ar - Ar_y * Ar_y);
-			/* ƒÄ(k) */
+			/* Î¶(k) */
 			zeta = nu * Ar_r * temp;
-			/* ƒÅ(k) */
+			/* Î·(k) */
 			eta = -1.0*Ar_y * Ar_r * temp;
 		}
 
-		/* ƒË(k + 1) */
+		/* Î½(k + 1) */
 		nu = zeta * Ar_r;
 
 		/* p(k) */
@@ -337,13 +337,13 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 
 		/* (r(k + 1), r(k + 1)) */
 		double norm_r = EvecRd.norm();
-		/* û‘©”»’è */
+		/* åæŸåˆ¤å®š */
 		const double normR = norm_r / normalizer;
-		/* ƒtƒ‰ƒO‚ªon‚È‚çAc·•Û‘¶ */
+		/* ãƒ•ãƒ©ã‚°ãŒonãªã‚‰ã€æ®‹å·®ä¿å­˜ */
 		if(is_save_residual_log){
 			residual_log.push_back(normR);
 		}
-		/* û‘©”»’è */
+		/* åæŸåˆ¤å®š */
 		if(normR < conv_cri || norm_r < abs_conv_cri){
 			//std::cout << "Solved!!! -- " << normR  << " " << It << ", " << temp << ", " << temp2  <<std::endl;
 			is_conv = true;
@@ -353,24 +353,24 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 		}
 		if(normR < best_resi_value){
 			best_resi_value = normR;
-			/* Å—Ç’l‚ÌXV(ƒtƒ‰ƒO‚ªon‚È‚ç) */		
+			/* æœ€è‰¯å€¤ã®æ›´æ–°(ãƒ•ãƒ©ã‚°ãŒonãªã‚‰) */		
 			if(is_save_best){
 				for(slv_int i = 0; i < size; i++){
 					best_results[i] = results[i];
 				}
 			}
 		}
-		/* ”­U”»’è‚P */
+		/* ç™ºæ•£åˆ¤å®šï¼‘ */
 		if(diverge_judge_type == 1){
-			/* Å—Ç’l~valˆÈ‰º‚È‚çA”­UƒJƒEƒ“ƒg‰Šú‰» */
+			/* æœ€è‰¯å€¤Ã—valä»¥ä¸‹ãªã‚‰ã€ç™ºæ•£ã‚«ã‚¦ãƒ³ãƒˆåˆæœŸåŒ– */
 			if(normR < best_resi_value * bad_div_val){
 				bad_counter = 0;
 			}
-			/* Å—Ç’l~valˆÈã‚È‚çA”­UƒJƒEƒ“ƒg{ */
+			/* æœ€è‰¯å€¤Ã—valä»¥ä¸Šãªã‚‰ã€ç™ºæ•£ã‚«ã‚¦ãƒ³ãƒˆï¼‹ */
 			if(normR >= best_resi_value * bad_div_val){
 				bad_counter++;
 			}
-			/* ”­UƒJƒEƒ“ƒg‚ªè‡’lƒI[ƒo[”­Uˆµ‚¢‚ÅI‚í‚é */
+			/* ç™ºæ•£ã‚«ã‚¦ãƒ³ãƒˆãŒé–¾å€¤ã‚ªãƒ¼ãƒãƒ¼ï¼ç™ºæ•£æ‰±ã„ã§çµ‚ã‚ã‚‹ */
 			if(bad_counter >= bad_div_count_thres){
 				is_conv = false;
 				break;
@@ -380,13 +380,13 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 	delete[] start_posA;
 	delete[] end_posA;
 
-	/* Œ‹‰Ê‘ã“ü */
+	/* çµæœä»£å…¥ */
 	for(slv_int i = 0; i < size; i++){
 		results[i] = EvecX(i);
 	}	
 	if(!is_conv){
 		std::cout << "not Convergence!!! " << std::endl;
-		/* Å—Ç’l‚ğ‘ã“ü(ƒtƒ‰ƒO‚ªon‚È‚ç) */
+		/* æœ€è‰¯å€¤ã‚’ä»£å…¥(ãƒ•ãƒ©ã‚°ãŒonãªã‚‰) */
 		if(is_save_best){
 			for(slv_int i = 0; i < size; i++){
 				results[i] = best_results[i];
@@ -404,12 +404,12 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 /*========================================*/
 /*========================================*/
 /*//=======================================================
-// œ CO-MRTR‚Å‰ğ‚­i–{‘Ìj
+// â— CO-MRTRã§è§£ãï¼ˆæœ¬ä½“ï¼‰
 //=======================================================*/
 bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const int max_ite, const double normB, 
 	const SparseMatBaseC& matA, const SparseMatBaseC& matL, const SparseMatBaseC& matL_tr, const dcomplex *vecB, dcomplex *results, bool init){
 
-	/* —v‘fŠm•Û */
+	/* è¦ç´ ç¢ºä¿ */
 	Eigen::VectorXcd EvecP = Eigen::VectorXcd::Zero(size);
 	Eigen::VectorXcd EvecRd(size);
 	Eigen::VectorXcd EvecU(size);
@@ -417,7 +417,7 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 	Eigen::VectorXcd EvecY(size);
 	Eigen::VectorXcd EvecARd(size);
 
-	/* ‰Šúİ’è */
+	/* åˆæœŸè¨­å®š */
 	if(init){
 		for(slv_int i = 0 ; i < size ; i++){
 			results[i] = 0;
@@ -443,12 +443,12 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 		for(slv_int j = start_posA[ii] ; j < c_size ; j++){
 			ap_temp += val_ptrA[j] * results[col_ptrA[j]];
 		}
-		/* ‰Šúc·“™ŒvZ*/
+		/* åˆæœŸæ®‹å·®ç­‰è¨ˆç®—*/
 		EvecRd(ii) = vecB[ii] - ap_temp;
 		EvecU(ii) = vecB[ii];
 	}
 
-	/* Å‰‚©‚ç“š‚¦‚¾‚Á‚½‚ç‰½‚à‚µ‚È‚¢ */
+	/* æœ€åˆã‹ã‚‰ç­”ãˆã ã£ãŸã‚‰ä½•ã‚‚ã—ãªã„ */
 	const double first_normR = EvecRd.norm() / normB;
 	if(first_normR < conv_cri*0.01){
 		delete[] start_posA;
@@ -456,18 +456,18 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 		return true;
 	}
 
-	/* û‘©”»’è—p‚Ì•â³|B| */
+	/* åæŸåˆ¤å®šç”¨ã®è£œæ­£|B| */
 	Eigen::VectorXcd tempVec = matL.matrix*EvecU;
 	const double normBd = tempVec.norm();
 
-	/* ‘Oˆ—rd=C^-1 * r */
+	/* å‰å‡¦ç†rd=C^-1 * r */
 	tempVec = EvecRd;
 	fr_process(size, matL, tempVec, EvecRd);	
 	/* y0 = -r0 */
 	EvecY = -1.0*EvecRd;
 
 
-	/* Å—ÇŒ‹‰Ê‚Ì•Û‘¶—piƒtƒ‰ƒO‚ªon‚È‚çj */
+	/* æœ€è‰¯çµæœã®ä¿å­˜ç”¨ï¼ˆãƒ•ãƒ©ã‚°ãŒonãªã‚‰ï¼‰ */
 	dcomplex* best_results=nullptr;
 	double best_resi_value = 1.0e+6;
 	if(is_save_best){
@@ -481,7 +481,7 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 	dcomplex zeta_old=1.0;
 	dcomplex eta;
 	dcomplex nu=1.0;
-	/* ”½•œŠJn */
+	/* åå¾©é–‹å§‹ */
 	int It = 0;
 	for(It = 0; It < max_ite; It++){
 		/* u = C^tr*rd */
@@ -500,24 +500,24 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 		dcomplex Ar_Ar =  EvecARd.transpose()*EvecARd;
 
 		if(It == 0){
-			/* ƒÄ(0) */
+			/* Î¶(0) */
 			zeta = Ar_r / Ar_Ar;
 			zeta_old = zeta;
-			/* ƒÅ(0) */
+			/* Î·(0) */
 			eta = 0.0;
 		} else{
 			/* (A*rd(k), y(k)) */
 			//dcomplex Ar_y = EvecARd.dot(EvecY);
 			dcomplex Ar_y = EvecARd.transpose()*EvecY;
-			/* ƒÄ(k), ƒÅ(k) ‚Ì®‚Ì•ª•ê */
+			/* Î¶(k), Î·(k) ã®å¼ã®åˆ†æ¯ */
 			dcomplex temp = 1.0 / (nu * Ar_Ar - Ar_y * Ar_y);
-			/* ƒÄ(k) */
+			/* Î¶(k) */
 			zeta = nu * Ar_r * temp;
-			/* ƒÅ(k) */
+			/* Î·(k) */
 			eta = -1.0*Ar_y * Ar_r * temp;
 		}
 
-		/* ƒË(k + 1) */
+		/* Î½(k + 1) */
 		nu = zeta * Ar_r;
 
 		/* p(k) */
@@ -534,13 +534,13 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 
 		/* (r(k + 1), r(k + 1)) */
 		double norm_r = EvecRd.norm();
-		/* û‘©”»’è */
+		/* åæŸåˆ¤å®š */
 		const double normR = norm_r / normBd;
-		/* ƒtƒ‰ƒO‚ªon‚È‚çAc·•Û‘¶ */
+		/* ãƒ•ãƒ©ã‚°ãŒonãªã‚‰ã€æ®‹å·®ä¿å­˜ */
 		if(is_save_residual_log){
 			residual_log.push_back(normR);
 		}
-		/* û‘©”»’è */
+		/* åæŸåˆ¤å®š */
 		if(normR < conv_cri){
 			//std::cout << "Solved!!! -- " << normR  << " " << It << ", " << temp << ", " << temp2  <<std::endl;
 			is_conv = true;
@@ -550,24 +550,24 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 		}
 		if(normR < best_resi_value){
 			best_resi_value = normR;
-			/* Å—Ç’l‚ÌXV(ƒtƒ‰ƒO‚ªon‚È‚ç) */		
+			/* æœ€è‰¯å€¤ã®æ›´æ–°(ãƒ•ãƒ©ã‚°ãŒonãªã‚‰) */		
 			if(is_save_best){
 				for(slv_int i = 0; i < size; i++){
 					best_results[i] = results[i];
 				}
 			}
 		}
-		/* ”­U”»’è‚P */
+		/* ç™ºæ•£åˆ¤å®šï¼‘ */
 		if(diverge_judge_type == 1){
-			/* Å—Ç’l~valˆÈ‰º‚È‚çA”­UƒJƒEƒ“ƒg‰Šú‰» */
+			/* æœ€è‰¯å€¤Ã—valä»¥ä¸‹ãªã‚‰ã€ç™ºæ•£ã‚«ã‚¦ãƒ³ãƒˆåˆæœŸåŒ– */
 			if(normR < best_resi_value * bad_div_val){
 				bad_counter = 0;
 			}
-			/* Å—Ç’l~valˆÈã‚È‚çA”­UƒJƒEƒ“ƒg{ */
+			/* æœ€è‰¯å€¤Ã—valä»¥ä¸Šãªã‚‰ã€ç™ºæ•£ã‚«ã‚¦ãƒ³ãƒˆï¼‹ */
 			if(normR >= best_resi_value * bad_div_val){
 				bad_counter++;
 			}
-			/* ”­UƒJƒEƒ“ƒg‚ªè‡’lƒI[ƒo[”­Uˆµ‚¢‚ÅI‚í‚é */
+			/* ç™ºæ•£ã‚«ã‚¦ãƒ³ãƒˆãŒé–¾å€¤ã‚ªãƒ¼ãƒãƒ¼ï¼ç™ºæ•£æ‰±ã„ã§çµ‚ã‚ã‚‹ */
 			if(bad_counter >= bad_div_count_thres){
 				is_conv = false;
 				break;
@@ -577,13 +577,13 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 	delete[] start_posA;
 	delete[] end_posA;
 
-	/* Œ‹‰Ê‘ã“ü */
+	/* çµæœä»£å…¥ */
 	for(slv_int i = 0; i < size; i++){
 		results[i] = EvecX(i);
 	}	
 	if(!is_conv){
 		std::cout << "not Convergence!!! " << std::endl;
-		/* Å—Ç’l‚ğ‘ã“ü(ƒtƒ‰ƒO‚ªon‚È‚ç) */
+		/* æœ€è‰¯å€¤ã‚’ä»£å…¥(ãƒ•ãƒ©ã‚°ãŒonãªã‚‰) */
 		if(is_save_best){
 			for(slv_int i = 0; i < size; i++){
 				results[i] = best_results[i];

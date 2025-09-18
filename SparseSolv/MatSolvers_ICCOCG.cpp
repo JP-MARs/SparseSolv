@@ -121,9 +121,9 @@ bool MatSolvers::solveICCG_diag(const slv_int size0, const double conv_cri, cons
 	/* 加速係数が負なら自動決定モードへ */
 	SparseMatC matL;
 	if(accera < 0){
-		auto_accel_determine(size0, accera, matA, diagD, matL);
+		auto_accel_determine(size0, accera, matDAD, diagD, matL);
 	}else{
-		matL = matA.IC_decomp(diagD, accera);
+		matL = matDAD.IC_decomp(diagD, accera);
 	}
 	/* 確定 */
 	SparseMatC matL_tr = matL.trans();

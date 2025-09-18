@@ -1,11 +1,11 @@
-#include "MatSolversEigenMKL.hpp"
+ï»¿#include "MatSolversEigenMKL.hpp"
 #include <000_thirdparty/Eigen/IterativeLinearSolvers>
 #include <000_thirdparty/Eigen/SparseCholesky>	
 
 #include "IncompleteLUT_my.h"
 
 
-/* ê—p–¼‘O‹óŠÔ */
+/* å°‚ç”¨åå‰ç©ºé–“ */
 namespace SRLfem{
 
 
@@ -14,7 +14,7 @@ namespace SRLfem{
 //=======================================================
 //=======================================================
 //=======================================================
-Eigenƒ\ƒ‹ƒo for BiCG©ìC³i‰Á‘¬ŒW”•t‚«j
+Eigenã‚½ãƒ«ãƒ for BiCGè‡ªä½œä¿®æ­£ï¼ˆåŠ é€Ÿä¿‚æ•°ä»˜ãï¼‰
 //=======================================================
 //=======================================================
 
@@ -23,10 +23,10 @@ Eigenƒ\ƒ‹ƒo for BiCG©ìC³i‰Á‘¬ŒW”•t‚«j
 
 
 /*//=======================================================
-// œ BiCGstab‚Å‰ğ‚­(Eigenƒ\ƒ‹ƒo)
+// â— BiCGstabã§è§£ã(Eigenã‚½ãƒ«ãƒ)
 //=======================================================*/
 bool MatSolversEigenMKL::solveEigenBiCGstab_accel(const slv_int size0, const double conv_cri, const int max_ite, const SparseMat& matA, const Eigen::VectorXd& vecB, Eigen::VectorXd& results, bool init){
-	/* İ’è */
+	/* è¨­å®š */
 	Eigen::BiCGSTAB<Eigen::SparseMatrix<double, Eigen::RowMajor>, Eigen::IncompleteLUT_my<double>> bicg;
 	bicg.setMaxIterations(max_ite);
 	bicg.setTolerance(conv_cri);
@@ -55,10 +55,10 @@ bool MatSolversEigenMKL::solveEigenBiCGstab_accel(const slv_int size0, const dou
 }
 
 /*//=======================================================
-// œ BiCGstab‚Å‰ğ‚­(Eigenƒ\ƒ‹ƒo)
+// â— BiCGstabã§è§£ã(Eigenã‚½ãƒ«ãƒ)
 //=======================================================*/
 bool MatSolversEigenMKL::solveEigenBiCGstab_accel(const slv_int size0, const double conv_cri, const int max_ite, const SparseMatC& matA, const Eigen::VectorXcd& vecB, Eigen::VectorXcd& results, bool init){
-	/* İ’è */
+	/* è¨­å®š */
 	Eigen::BiCGSTAB<Eigen::SparseMatrix<dcomplex, Eigen::RowMajor>, Eigen::IncompleteLUT_my<dcomplex>> bicg;
 	bicg.setMaxIterations(max_ite);
 	bicg.setTolerance(conv_cri);
