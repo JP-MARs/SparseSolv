@@ -1,7 +1,7 @@
 project(SparseSolv CXX)
 #出力先はベース
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${Basedir})
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${Basedir})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${SparseSolvBase_BINARY_DIR})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${SparseSolvBase_BINARY_DIR})
 
 #コンパイル設定
 add_library(SparseSolv

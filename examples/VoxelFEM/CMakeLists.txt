@@ -1,6 +1,6 @@
 project(3DFEM CXX)
 #出力先はベース
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${Basedir}/examples/VoxelFEM)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 #コンパイル設定
 add_executable(
