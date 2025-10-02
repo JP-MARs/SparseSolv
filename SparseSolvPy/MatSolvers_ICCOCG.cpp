@@ -192,7 +192,7 @@ bool MatSolvers::solveICCG(const slv_int size, const double conv_cri, const int 
 	const double abs_conv_cri = (normB*conv_cri*0.9 < small_abs_conv_val ? small_abs_conv_val : normB*conv_cri*0.9);
 
 	/* 最初から答えだったら何もしない */
-	const double first_normR = EvecR.norm() / normB;
+	double first_normR = EvecR.norm() / normB;
 	if(first_normR < conv_cri*0.1 || first_normR*normB < abs_conv_cri*0.1){
 		delete[] start_posA;
 		delete[] end_posA;
@@ -200,10 +200,14 @@ bool MatSolvers::solveICCG(const slv_int size, const double conv_cri, const int 
 	}
 	/* 残差正規化方法をセット */
 	double normalizer = normB;
+	first_normR *= normB;
 	if(conv_normalize_type == 1){
 		normalizer = first_normR;
 	}else if(conv_normalize_type == 2){
 		normalizer = conv_normalize_const;
+	}
+	if(is_save_residual_log){
+		residual_log.push_back(first_normR/normalizer);
 	}
 
 	/* 最良結果の保存用（フラグがonなら） */

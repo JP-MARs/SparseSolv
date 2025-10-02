@@ -21,7 +21,7 @@ namespace SRLfem{
 
 
 /* ソルバ内のint定義 */
-using slv_int = size_t;//int;
+using slv_int = int;
 
 /* プロトタイプ宣言 */
 class SparseMat;

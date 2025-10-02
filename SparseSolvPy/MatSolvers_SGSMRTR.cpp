@@ -248,7 +248,7 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 	const double abs_conv_cri = (normB*conv_cri*0.9 < small_abs_conv_val ? small_abs_conv_val : normB*conv_cri*0.9);
 
 	/* 最初から答えだったら何もしない */
-	const double first_normR = EvecRd.norm() / normB;
+	double first_normR = EvecRd.norm() / normB;
 	if(first_normR < conv_cri*0.1 || first_normR*normB < abs_conv_cri*0.1){
 		delete[] start_posA;
 		delete[] end_posA;
@@ -260,11 +260,16 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 
 	/* 残差正規化方法をセット */
 	double normalizer = normBd;
+	first_normR *= normBd;
 	if(conv_normalize_type == 1){
 		normalizer = first_normR;
 	}else if(conv_normalize_type == 2){
 		normalizer = conv_normalize_const;
 	}
+	if(is_save_residual_log){
+		residual_log.push_back(first_normR/normalizer);
+	}
+
 
 	/* 前処理rd=C^-1 * r */
 	tempVec = EvecRd;
@@ -449,7 +454,7 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 	}
 
 	/* 最初から答えだったら何もしない */
-	const double first_normR = EvecRd.norm() / normB;
+	double first_normR = EvecRd.norm() / normB;
 	if(first_normR < conv_cri*0.01){
 		delete[] start_posA;
 		delete[] end_posA;
@@ -459,6 +464,18 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 	/* 収束判定用の補正|B| */
 	Eigen::VectorXcd tempVec = matL.matrix*EvecU;
 	const double normBd = tempVec.norm();
+
+	/* 残差正規化方法をセット */
+	double normalizer = normBd;
+	first_normR *= normBd;
+	if(conv_normalize_type == 1){
+		normalizer = first_normR;
+	}else if(conv_normalize_type == 2){
+		normalizer = conv_normalize_const;
+	}
+	if(is_save_residual_log){
+		residual_log.push_back(first_normR/normalizer);
+	}
 
 	/* 前処理rd=C^-1 * r */
 	tempVec = EvecRd;
@@ -535,7 +552,7 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 		/* (r(k + 1), r(k + 1)) */
 		double norm_r = EvecRd.norm();
 		/* 収束判定 */
-		const double normR = norm_r / normBd;
+		const double normR = norm_r / normalizer;
 		/* フラグがonなら、残差保存 */
 		if(is_save_residual_log){
 			residual_log.push_back(normR);

@@ -51,6 +51,8 @@ PYBIND11_MODULE(SparseSolvPy, m)
 		.def("setDirvegeType", &MatSolvers::setDirvegeType)
 		.def("setBadDivVal", &MatSolvers::setBadDivVal)
 		.def("setBadDivCount", &MatSolvers::setBadDivCount)
+		.def("setConvNormalizeType", &MatSolvers::setConvNormalizeType)
+		.def("setConvNormalizeConst", &MatSolvers::setConvNormalizeConst)
 
 		.def("getResidualLog_py", &MatSolvers::getResidualLog_py)
 		.def("solveICCG_py", py::overload_cast<const int, const double, const int, const double, const SparseMat&, py::array_t<double>, py::array_t<double>, bool>(&MatSolvers::solveICCG_py) )

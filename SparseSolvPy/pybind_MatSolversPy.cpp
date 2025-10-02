@@ -26,12 +26,12 @@ bool MatSolvers::solveICCG_py(const slv_int size0, const double conv_cri, const 
 	double* vecBa = new double[size0];
 	double* results_a = new double[size0];
 	double norm=0;
-	for(int i = 0 ; i < size0 ; i++){
+	for(int i = 0 ; i < size0 ; i++){		
 		const double temp = b_ptr[i];
 		vecBa[i] = temp;
 		norm += temp*temp;
 		results_a[i] = x_ptr[i];
-		std::cout << temp << std::endl;
+		
 	}
 	norm = sqrt(norm);
 	bool bl = solveICCG(size0, conv_cri, max_ite, accera, norm, matA, vecBa, results_a, init);

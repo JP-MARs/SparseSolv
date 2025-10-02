@@ -326,7 +326,7 @@ bool MatSolvers::solveICMRTR(const slv_int size, const double conv_cri, const in
 	const double abs_conv_cri = (normB*conv_cri*0.9 < small_abs_conv_val ? small_abs_conv_val : normB*conv_cri*0.9);
 
 	/* 最初から答えだったら何もしない */
-	const double first_normR = EvecR.norm() / normB;
+	double first_normR = EvecR.norm() / normB;
 	if(first_normR < conv_cri*0.1 || first_normR*normB < abs_conv_cri*0.1){
 		delete[] start_posA;
 		delete[] end_posA;
@@ -334,10 +334,14 @@ bool MatSolvers::solveICMRTR(const slv_int size, const double conv_cri, const in
 	}
 	/* 残差正規化方法をセット */
 	double normalizer = normB;
+	first_normR *= normB;
 	if(conv_normalize_type == 1){
 		normalizer = first_normR;
 	}else if(conv_normalize_type == 2){
 		normalizer = conv_normalize_const;
+	}
+	if(is_save_residual_log){
+		residual_log.push_back(first_normR/normalizer);
 	}
 
 	/* 前処理u=M^-1 * r */
@@ -531,7 +535,7 @@ bool MatSolvers::solveICMRTR(const slv_int size, const double conv_cri, const in
 	const double abs_conv_cri = (normB*conv_cri*0.9 < small_abs_conv_val ? small_abs_conv_val : normB*conv_cri*0.9);
 
 	/* 最初から答えだったら何もしない */
-	const double first_normR = EvecR.norm() / normB;
+	double first_normR = EvecR.norm() / normB;
 	if(first_normR < conv_cri*0.1 || first_normR*normB < abs_conv_cri*0.1){
 		delete[] start_posA;
 		delete[] end_posA;
@@ -539,11 +543,16 @@ bool MatSolvers::solveICMRTR(const slv_int size, const double conv_cri, const in
 	}
 	/* 残差正規化方法をセット */
 	double normalizer = normB;
+	first_normR *= normB;
 	if(conv_normalize_type == 1){
 		normalizer = first_normR;
 	}else if(conv_normalize_type == 2){
 		normalizer = conv_normalize_const;
 	}
+	if(is_save_residual_log){
+		residual_log.push_back(first_normR/normalizer);
+	}
+
 
 	/* 前処理u=M^-1 * r */
 	IC_frbc_process(size, matL, matL_tr, diagD, EvecR, EvecU);	
