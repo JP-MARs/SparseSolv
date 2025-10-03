@@ -4,6 +4,9 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${Basedir})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${Basedir})
 
 message("Pybind export in SparseSolvPy !") 
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.12)
+    set(PYBIND11_FINDPYTHON ON)
+endif()
 find_package(pybind11 REQUIRED)
 pybind11_add_module(SparseSolvPy 
   MODULE 
