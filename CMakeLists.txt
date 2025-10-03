@@ -19,7 +19,7 @@ endif()
 set(PYBIND_EXPORT 1)
 
 # set base dir
-project(SparseSolv CXX)
+project(SparseSolvBase CXX)
 set(Basedir ${CMAKE_CURRENT_SOURCE_DIR})
 
 # set dir set
