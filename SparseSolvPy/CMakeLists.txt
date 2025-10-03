@@ -2,6 +2,9 @@ project(SparseSolvPy CXX)
 #出力先はベース
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${SparseSolvBase_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${SparseSolvBase_BINARY_DIR})
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 message("Pybind export in SparseSolvPy !") 
 if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.12)
@@ -28,7 +31,7 @@ pybind11_add_module(SparseSolvPy
 if(CMAKE_CXX_COMPILER MATCHES "icpc")
  message("Intel Classical Compiler use in SparseSolvPy !") 
  target_include_directories(SparseSolvPy PUBLIC ${SparseSolvBase_SOURCE_DIR})
- target_compile_options(SparseSolvPy PUBLIC -std=c++14 -O3 -qopenmp -ipo)
+ target_compile_options(SparseSolvPy PUBLIC -O3 -qopenmp -ipo)
  target_link_libraries(SparseSolvPy PUBLIC -qmkl  SparseSolv)
 #
 # set for Intel OneAPI
@@ -38,13 +41,13 @@ elseif(CMAKE_CXX_COMPILER MATCHES "icpx")
  set(CMAKE_NM "/opt/intel/oneapi/compiler/latest/bin/compiler/llvm-nm")
  set(CMAKE_RANLIB "/opt/intel/oneapi/compiler/latest/bin/compiler/llvm-ranlib")
  target_include_directories(SparseSolvPy PUBLIC ${SparseSolvBase_SOURCE_DIR})
- target_compile_options(SparseSolvPy PUBLIC -std=c++14 -O3 -qopenmp -fPIC)
+ target_compile_options(SparseSolvPy PUBLIC -O3 -qopenmp -fPIC)
  target_link_libraries(SparseSolvPy PUBLIC  SparseSolv -qmkl -ipo -shared)
 #
 # gcc setting
 else()
   find_package(OpenMP REQUIRED)
   target_include_directories(SparseSolvPy PUBLIC ${SparseSolvBase_SOURCE_DIR})
-  target_compile_options(SparseSolvPy PUBLIC -std=c++14 -O3 -fopenmp -fPIC)
+  target_compile_options(SparseSolvPy PUBLIC -O3 -fopenmp -fPIC)
   target_link_libraries(SparseSolvPy PUBLIC  SparseSolv OpenMP::OpenMP_CXX)
 endif()
