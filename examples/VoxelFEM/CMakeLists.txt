@@ -18,15 +18,24 @@ add_executable(
 #オプションとライブラリリンクの設定
 if(CMAKE_CXX_COMPILER MATCHES "icpc")
  message("Intel Classical Compiler use in Example !") 
- target_compile_options(voxel3DFEM.out PUBLIC -std=c++14 -O3 -I${Basedir} -I${Basedir}/SparseSolv -qopenmp -ipo)
+ target_compile_options(voxel3DFEM.out PUBLIC -std=c++14 -O3 -qopenmp -ipo)
+ target_include_directories(voxel3DFEM.out
+  PUBLIC ${SparseSolvBase_SOURCE_DIR}
+  PUBLIC ${SparseSolv_SOURCE_DIR})
  target_link_libraries(voxel3DFEM.out PUBLIC -qmkl -ipo SparseSolv)
 #
 elseif(CMAKE_CXX_COMPILER MATCHES "icpx")
  message("Intel New Compiler use in Example !") 
- target_compile_options(voxel3DFEM.out PUBLIC -std=c++14 -O3 -I${Basedir} -I${Basedir}/SparseSolv -qopenmp)
+ target_compile_options(voxel3DFEM.out PUBLIC -std=c++14 -O3 -qopenmp)
+ target_include_directories(voxel3DFEM.out
+  PUBLIC ${SparseSolvBase_SOURCE_DIR}
+  PUBLIC ${SparseSolv_SOURCE_DIR})
  target_link_libraries(voxel3DFEM.out PUBLIC -qmkl -ipo SparseSolv)
 #
 else()
- target_compile_options(voxel3DFEM.out PUBLIC -std=c++14 -O3 -I${Basedir} -I${Basedir}/SparseSolv -fopenmp)
+ target_compile_options(voxel3DFEM.out PUBLIC -std=c++14 -O3 -fopenmp)
+ target_include_directories(voxel3DFEM.out
+  PUBLIC ${SparseSolvBase_SOURCE_DIR}
+  PUBLIC ${SparseSolv_SOURCE_DIR})
  target_link_libraries(voxel3DFEM.out PUBLIC -lgomp SparseSolv)
 endif()
