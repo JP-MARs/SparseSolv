@@ -15,5 +15,5 @@ jobs:
           cmake
           -D CMAKE_CXX_COMPILER=g++
           -S . -B build/
-      - run: make -j4
+      - run: make -j4 VERBOSE=1
         working-directory: build/
