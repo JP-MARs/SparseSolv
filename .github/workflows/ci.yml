@@ -9,8 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: |
+      - run: >
           sudo apt-get install python3-dev pybind11-dev
-      - run: cmake -D CMAKE_CXX_COMPILER=g++ -S . -B build/
+      - run: >
+          cmake
+          -D CMAKE_CXX_COMPILER=g++
+          -S . -B build/
       - run: make -j4
         working-directory: build/
