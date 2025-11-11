@@ -8,3 +8,5 @@
 /SparseSolv/.vs
 /SparseSolvPy/.vs
 /SparseSolvPy/out/build/x64-Debug
+/examples/VoxelFEM/out/build/x64-Debug
+/examples/VoxelFEM/.vs
