@@ -193,9 +193,9 @@ $$
     *   あるいは、ペナルティ項を加えて無理やり正定値化する方法も試みられましたが、ペナルティ係数の調整という新たな問題を招きました。</p>
 <h3>3. 日本独自のブレイクスルー：Shifted ICCG (1990年代初頭)</h3>
 <p>この停滞を打破したのが、日本国内の現場からの実用的なアプローチでした。
-*   <strong>亀有昭久氏（元・三菱原子力工業、現SSIL）の直感と実証 <a href="#ref2" class="ref-link">[2]</a></strong>:
-    *   三菱原子力工業時代から大規模電磁界解析に取り組んでいた亀有氏は、数学的な厳密さよりも「解けること」を優先し、既存のICCGコードにわずかな変更（対角シフト <strong><a href="#ref5" class="ref-link">[5]</a></strong>）を加えるだけで、特異行列が安定して解けることを発見しました。
-    *   この <strong>Shifted ICCG</strong> 法は、ゲージ固定のような複雑な前処理を必要とせず、$LDL^T$分解（ルートフリー / square-root-free）を用いることで計算も高速でした。
+*   <strong>亀有昭久氏（元・三菱原子力工業、現SSIL）による辺要素FEMへの適用 <a href="#ref2" class="ref-link">[2]</a></strong>:
+    *   Manteuffel <strong><a href="#ref5" class="ref-link">[5]</a></strong> が提案した対角シフト付き不完全分解（Shifted IC）を、辺要素FEMの特異行列問題に適用し、その有効性を実証しました。
+    *   数学的な厳密さよりも「解けること」を優先した実用的アプローチにより、ゲージ固定のような複雑な前処理を必要とせず、$LDL^T$分解（ルートフリー / square-root-free）を用いることで計算も高速な <strong>Shifted ICCG</strong> 法が確立されました。
 *   <strong>Van der Vorst との交流</strong>:
     *   オランダの H. A. van der Vorst 教授は、電磁界解析コミュニティ（COMPUMAG等）とも深い関わりを持ち、1990年に複素対称行列向けの <strong>COCG法 <a href="#ref4" class="ref-link">[4]</a></strong> を提案しました。
     *   日本の研究者は即座にこれを取り入れ、複素数に対しても Shifted IC + COCG を適用することで、渦電流解析などの周波数応答解析においても「特異行列のまま解く」スタイルを確立しました。</p>
