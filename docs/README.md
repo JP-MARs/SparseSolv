@@ -1,7 +1,7 @@
 # 行列解法・ICCG法関連文献
 
 このフォルダには、有限要素法(FEM)などの電磁界解析で用いられる疎行列解法、主にICCG法やCOCG法に関する文献が格納されています。
-特に、**日本国内の電磁界解析コミュニティで独自に発展・定着した実装ノウハウ**（Shifted ICCGや$LDL^T$分解の採用など）や、辺要素FEM特有の収束性に関する議論に焦点を当てています。
+特に、**日本国内の電磁界解析コミュニティで独自に発展・定着した実装ノウハウ**（Shifted ICCGや $LDL^{T}$ 分解の採用など）や、辺要素FEM特有の収束性に関する議論に焦点を当てています。
 
 ## 理論的背景 (Theoretical Background)
 
@@ -12,30 +12,37 @@
 **適用対象**: 実対称正定値行列 (Real Symmetric Positive Definite)
 
 関数 $\phi(x)$ の最小化問題と等価です。
-$$
+
+```math
 \phi(x) = \frac{1}{2} x^T A x - x^T b
-$$
+```
+
 探索方向 $p_k$ が $A$-直交 (共役) であるように選ばれます。
-$$
+
+```math
 p_i^T A p_j = 0 \quad (i \neq j)
-$$
+```
+
 収束性を改善するために、不完全コレスキー分解 (Incomplete Cholesky Decomposition) を前処理行列 $M$ として用いるのが **ICCG法** です。
-$$
-M = (L D L^T) \approx A
-$$
+
+```math
+M = LDL^{T} \approx A
+```
 
 ### 2. COCG法 (Conjugate Orthogonal CG)
 **適用対象**: 複素対称行列 (Complex Symmetric)
-$$
+
+```math
 A = A^T \quad (\text{ただし通常 } A \neq A^H)
-$$
+```
 渦電流解析などの周波数領域FEMでは、行列は複素対称になります。これに対して、BiCG法よりも効率的なCOCG法 (van der Vorst, 1990) が用いられます。
 
 #### 直交性の定義の違い
 通常の複素内積（エルミート内積）ではなく、双線形形式 (bilinear form) を用います。
-$$
+
+```math
 (x, y)_* = x^T y \quad (\text{共役をとらない})
-$$
+```
 これにより、CG法と同様の3項漸化式で更新が可能となり、メモリ効率と計算速度が向上します。
 
 ---
@@ -47,7 +54,12 @@ $$
 ### 1. バンド行列とベクトル計算機の時代 (~1980年代中盤)
 初期の3次元FEM解析への挑戦は、メモリリソースと計算速度との戦いでした。
 *   当初は「バンド行列ソルバ」や「スカイライン法」などの直接法が用いられていましたが、未知数が数1,000を超えると当時のメインフレームでも計算不能に陥りました。
-*   **Meijerink & van der Vorst [6]** (1977) による不完全コレスキー分解を用いた前処理付きCG法（ICCG法）の提案は、この状況を一変させました。日本国内では、特に日立・富士通・NECなどの国産スーパーコンピュータ（ベクトル計算機）上でのICCG法の高速化（超平面法によるベクトル化など）が、企業・大学で熱心に研究されました。**藤原・中田ら [3]** は、リナンバリングや加速係数によるICCG法の収束特性改善を体系的に研究し、「良い前処理を行えば反復法は速い」という認識の定着に大きく貢献しました。
+*   **Meijerink & van der Vorst [6]** (1977) による不完全コレスキー分解を用いた前処理付きCG法（ICCG法）の提案は、この状況を一変させました。日本国内では、特に日立・富士通・NECなどの国産スーパーコンピュータ（ベクトル計算機）上でのICCG法の高速化（超平面法によるベクトル化など）が、企業・大学で熱心に研究されました。
+*   **岡山大学・中田高義研究室の貢献**: 中田高義教授率いる岡山大学の研究グループ（藤原耕二氏を含む）は、ICCG法の収束特性改善に関して日本をリードする研究を行いました **[3]**。特に：
+    *   リナンバリング（reverse Cuthill-McKee法など）による行列帯幅縮小と収束改善
+    *   **シフト係数（加速係数）** の導入による収束安定化
+    *   磁性材料の標準磁気特性測定法の確立
+    など、実用化に不可欠な基盤技術を体系的に研究し、「良い前処理を行えば反復法は速い」という認識の定着に大きく貢献しました。中田研出身の研究者は現在も国内外で電磁界解析の第一線で活躍しています。
 
 ### 2. 辺要素の登場と「特異性の壁」 (1980年代後半〜)
 T. Weiland (FIT) や A. Bossavit (Edge Elements) らにより、スプリアス解を含まないベクトル解析として「辺要素」が理論化されました。しかし、これを実装しようとした研究者たちは、大きな壁に直面しました。
@@ -60,7 +72,7 @@ T. Weiland (FIT) や A. Bossavit (Edge Elements) らにより、スプリアス�
 この停滞を打破したのが、日本国内の現場からの実用的なアプローチでした。
 *   **亀有昭久氏（元・三菱原子力工業、現SSIL）による辺要素FEMへの適用 [2]**:
     *   Kershaw **[7]** が1978年にプラズマシミュレーションの負ピボット問題を回避するために提案し、Manteuffel **[5]** が理論を体系化した対角シフト付き不完全分解（Shifted IC）を、辺要素FEMの特異行列問題に適用し、その有効性を実証しました。
-    *   数学的な厳密さよりも「解けること」を優先した実用的アプローチにより、ゲージ固定のような複雑な前処理を必要とせず、$LDL^T$分解（ルートフリー / square-root-free）を用いることで計算も高速な **Shifted ICCG** 法が確立されました。
+    *   数学的な厳密さよりも「解けること」を優先した実用的アプローチにより、ゲージ固定のような複雑な前処理を必要とせず、 $LDL^{T}$ 分解（ルートフリー / square-root-free）を用いることで計算も高速な **Shifted ICCG** 法が確立されました。
 *   **藤原耕二氏（岡山大、現同志社大）らによるシフト係数の最適化 [3]**:
     *   シフト係数（加速係数）の最適値を求める方法が研究され、実対称行列に対しては自動決定法が提案されています **[8]**。
 *   **Van der Vorst との交流**:
@@ -75,6 +87,45 @@ T. Weiland (FIT) や A. Bossavit (Edge Elements) らにより、スプリアス�
 
 ---
 
+## 実用的実装の検討 (Practical Implementation)
+
+**岡本ら [9]** (2014) は、国内10研究機関でICCG法の実装をベンチマーキングし、高速化のための実用的な実装法を体系化しました。
+
+### ベンチマークモデル
+*   **ボックスシールドモデル**: 節点数558,256、要素数539,105、未知数（DoF）1,594,320、係数行列の非零要素数26,618,443
+*   六面体一次辺要素、磁気ベクトルポテンシャル定式化（線形静磁界）
+*   CRS（Compressed Row Storage）形式で疎行列を格納
+
+### 対角スケーリングの数学的等価性
+対角スケーリング（点ヤコビ前処理）の有無がIC前処理後の収束特性に影響しないことが数学的に証明されました。
+
+スケーリング行列 $S$ を対角成分 $\sqrt{a_{ii}}$ で定義すると：
+
+```math
+\bar{A} = S^{-1}AS^{-T}, \quad \bar{x} = S^{T}x, \quad \bar{b} = S^{-1}b
+```
+
+IC分解 $A \approx CC^{T}$, $\bar{A} \approx \bar{C}\bar{C}^{T}$ に対して、 $\bar{C} = S^{-1}C$ の関係より：
+
+```math
+(C^{-1}AC^{-T})(C^{T}x) = C^{-1}b
+```
+
+となり、対角スケーリングの有無に関係なく前処理後の方程式は同値となります。
+
+### 実装上の最適化ポイント
+1.  **IC分解の形式**: $LDL^{T}$ 分解（ルートフリー）において、 $L$ の対角成分を1とする形式（IC type 2）を採用すると、前進代入で40%以上の高速化が可能
+2.  **前進・後退代入**: 式 $(LD)D^{-1}(LD)^{T}u = r$ の形式に変形し、 $LD$ を格納することで対角成分のメモリアクセスを削減
+3.  **後退代入のループ方向**: 逆方向にループすることで連続メモリアクセスによる高速化
+4.  **行列ベクトル積**: 下三角部分のループ内で上三角部分の寄与も同時に計算し、メモリアクセス回数を半減
+5.  **キャッシュミス回避**: 間接参照によるキャッシュミスを最小化する実装が重要
+
+### 標準シフト係数
+*   実対称行列に対して $\gamma = 1.06$ が広く使用されています
+*   自動決定法も提案されています **[8]**
+
+---
+
 ## 参考文献 (References)
 
 1.  **H. Igarashi, T. Honma**, "On the property of the ICCG method applied to the finite element equation for quasi-static fields," *IEEE Transactions on Magnetics*, vol. 38, no. 2, pp. 565-568, 2002.
@@ -85,6 +136,7 @@ T. Weiland (FIT) や A. Bossavit (Edge Elements) らにより、スプリアス�
 6.  **J. A. Meijerink, H. A. van der Vorst**, "An iterative solution method for linear systems of which the coefficient matrix is a symmetric M-matrix," *Mathematics of Computation*, vol. 31, no. 137, pp. 148-162, 1977. [DOI: 10.1090/S0025-5718-1977-0438681-4](https://doi.org/10.1090/S0025-5718-1977-0438681-4)
 7.  **D. S. Kershaw**, "The incomplete Cholesky-conjugate gradient method for the iterative solution of systems of linear equations," *Journal of Computational Physics*, vol. 26, no. 1, pp. 43-65, 1978. [DOI: 10.1016/0021-9991(78)90098-0](https://doi.org/10.1016/0021-9991(78)90098-0)
 8.  **J. Kitao, Y. Takahashi, K. Fujiwara, T. Mifune, T. Iwashita**, "Automatic determination of acceleration factor in shifted ICCG method for 3-D electromagnetic field analyses," *IEEE Transactions on Magnetics*, vol. 49, no. 5, pp. 1741-1744, 2013.
+9.  **Y. Okamoto, Y. Takahashi, K. Fujiwara, A. Ahagon, T. Mifune, T. Iwashita**, "辺要素有限要素解析から得られる実対称線形方程式求解におけるICCG法の実用的実装の検討," *電気学会論文誌B*, vol. 134, no. 9, pp. 767-776, 2014. [DOI: 10.1541/ieejpes.134.767](https://doi.org/10.1541/ieejpes.134.767)
 
 ---
 *Generated by geminiさん on 2026-01-29*
