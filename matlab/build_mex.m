@@ -90,7 +90,8 @@ function build_mex(varargin)
     % Platform-specific flags
     if ispc
         % Windows (MSVC)
-        cxx_flags = [cxx_flags, {'COMPFLAGS="$COMPFLAGS /std:c++17 /EHsc /W3"'}];
+        % /openmp for OpenMP support, /EHsc for exception handling
+        cxx_flags = [cxx_flags, {'COMPFLAGS="$COMPFLAGS /std:c++17 /EHsc /W3 /openmp"'}];
         if debug_mode
             cxx_flags = [cxx_flags, {'COMPFLAGS="$COMPFLAGS /Od /Zi"'}];
             cxx_flags = [cxx_flags, {'-g'}];
@@ -99,7 +100,9 @@ function build_mex(varargin)
         end
     else
         % Linux/Mac (GCC/Clang)
-        cxx_flags = [cxx_flags, {'CXXFLAGS="$CXXFLAGS -std=c++17"'}];
+        % -fopenmp for OpenMP support
+        cxx_flags = [cxx_flags, {'CXXFLAGS="$CXXFLAGS -std=c++17 -fopenmp"'}];
+        cxx_flags = [cxx_flags, {'LDFLAGS="$LDFLAGS -fopenmp"'}];
         if debug_mode
             cxx_flags = [cxx_flags, {'CXXFLAGS="$CXXFLAGS -O0 -g"'}];
         else
@@ -114,12 +117,19 @@ function build_mex(varargin)
         mex_args = [mex_args, {'-v'}];
     end
 
+    % Use R2017b API for complex number compatibility
+    % This allows mxGetPr/mxGetPi to work in newer MATLAB versions
+    mex_args = [mex_args, {'-R2017b'}];
+
     % Output file
     output_file = fullfile(this_dir, 'sparsesolv_mex');
     mex_args = [mex_args, {'-output', output_file}];
 
-    % Include path
+    % Include paths
     mex_args = [mex_args, {include_flag}];
+    % Add parent directory for Eigen (000_thirdparty/Eigen)
+    eigen_include_flag = ['-I' parent_dir];
+    mex_args = [mex_args, {eigen_include_flag}];
 
     % Compiler flags
     mex_args = [mex_args, cxx_flags];
