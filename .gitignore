@@ -10,3 +10,15 @@
 /SparseSolvPy/out/build/x64-Debug
 /examples/VoxelFEM/out/build/x64-Debug
 /examples/VoxelFEM/.vs
+
+# Build directories
+/build/
+/build_*/
+build_ngsolve/
+
+# Temporary CMake files
+CMakeLists_*.txt
+
+# MATLAB MEX build artifacts
+*.obj
+*.o
