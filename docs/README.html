@@ -243,10 +243,11 @@ $$</p>
 <li><strong>行列ベクトル積</strong>: 下三角部分のループ内で上三角部分の寄与も同時に計算し、メモリアクセス回数を半減</li>
 <li><strong>キャッシュミス回避</strong>: 間接参照によるキャッシュミスを最小化する実装が重要</li>
 </ol>
-<h3>標準シフト係数</h3>
+<h3>シフト係数（加速係数）</h3>
 <ul>
-<li>実対称行列に対して $\gamma = 1.06$ が広く使用されています</li>
-<li>自動決定法も提案されています <strong><a href="#ref8" class="ref-link">[8]</a></strong></li>
+<li>シフト係数 $\gamma$ は問題依存であり、最適値は行列の性質によって異なります</li>
+<li>岡本らのベンチマーキング <strong><a href="#ref9" class="ref-link">[9]</a></strong> では比較のため $\gamma = 1.06$ を統一して使用</li>
+<li><strong>自動決定法</strong>: 北尾・高橋・藤原ら <strong><a href="#ref8" class="ref-link">[8]</a></strong> は、残差と汎関数に基づくシフト係数の自動決定法を提案しており、実対称行列に対して適用可能です</li>
 </ul>
 <hr />
 <h2>参考文献 (References)</h2>
