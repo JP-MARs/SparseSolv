@@ -1,0 +1,226 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>行列解法・ICCG法関連文献</title>
+    <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fafafa;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 1px solid #bdc3c7;
+            padding-bottom: 5px;
+            margin-top: 40px;
+        }
+        h3 {
+            color: #555;
+            margin-top: 30px;
+        }
+        h4 {
+            color: #666;
+            margin-top: 20px;
+        }
+        code {
+            background-color: #ecf0f1;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        pre {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #bdc3c7;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #ecf0f1;
+        }
+        blockquote {
+            border-left: 4px solid #3498db;
+            margin: 20px 0;
+            padding: 10px 20px;
+            background-color: #ecf0f1;
+        }
+        .highlight {
+            background-color: #fffacd;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        ul, ol {
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 30px 0;
+        }
+        /* Reference link styling */
+        .ref-link {
+            color: #e74c3c;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .ref-link:hover {
+            text-decoration: underline;
+        }
+        /* References section styling */
+        ol.references {
+            background-color: #f5f5f5;
+            padding: 20px 20px 20px 45px;
+            border-radius: 8px;
+        }
+        ol.references li {
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            border-left: 3px solid #3498db;
+            margin: 10px 0;
+        }
+        ol.references li:target {
+            background-color: #fffacd;
+            border-left-color: #e74c3c;
+        }
+        /* Math block styling (for display math) */
+        .MathJax_Display {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin: 15px 0;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+<h1>行列解法・ICCG法関連文献</h1>
+<p>このフォルダには、有限要素法(FEM)などの電磁界解析で用いられる疎行列解法、主にICCG法やCOCG法に関する文献が格納されています。
+特に、<strong>日本国内の電磁界解析コミュニティで独自に発展・定着した実装ノウハウ</strong>（Shifted ICCGや$LDL^T$分解の採用など）や、辺要素FEM特有の収束性に関する議論に焦点を当てています。</p>
+<h2>理論的背景 (Theoretical Background)</h2>
+<p>電磁界解析（特にFEM）において、離散化により得られる連立一次方程式 $A x=b$ は、大規模かつ疎（Sparse）な構造を持ちます。
+この行列 $A$ の性質により、適用すべきクリロフ部分空間法が異なります。</p>
+<h3>1. CG法とICCG法</h3>
+<p><strong>適用対象</strong>: 実対称正定値行列 (Real Symmetric Positive Definite)</p>
+<p>関数 $\phi(x)$ の最小化問題と等価です。
+$$
+\phi(x) = \frac{1}{2} x^T A x - x^T b
+$$
+探索方向 $p_k$ が $A$-直交 (共役) であるように選ばれます。
+$$
+p_i^T A p_j = 0 \quad (i \neq j)
+$$
+収束性を改善するために、不完全コレスキー分解 (Incomplete Cholesky Decomposition) を前処理行列 $M$ として用いるのが <strong>ICCG法</strong> です。
+$$
+M = (L D L^T) \approx A
+$$</p>
+<h3>2. COCG法 (Conjugate Orthogonal CG)</h3>
+<p><strong>適用対象</strong>: 複素対称行列 (Complex Symmetric)
+$$
+A = A^T \quad (\text{ただし通常 } A \neq A^H)
+$$
+渦電流解析などの周波数領域FEMでは、行列は複素対称になります。これに対して、BiCG法よりも効率的なCOCG法 (van der Vorst, 1990) が用いられます。</p>
+<h4>直交性の定義の違い</h4>
+<p>通常の複素内積（エルミート内積）ではなく、双線形形式 (bilinear form) を用います。
+$$
+(x, y)_* = x^T y \quad (\text{共役をとらない})
+$$
+これにより、CG法と同様の3項漸化式で更新が可能となり、メモリ効率と計算速度が向上します。</p>
+<hr />
+<h2>電磁界解析における行列解法の歴史的変遷 (Historical Evolution)</h2>
+<p>日本の計算電磁気学（Computational Electromagnetics, CEM）分野において、現在の標準的な解法（Shifted ICCG）が確立されるまでには、1980年代から90年代にかけてのハードウェアの進化と、定式化のパラダイムシフトに伴う深い議論の歴史がありました。</p>
+<h3>1. バンド行列とベクトル計算機の時代 (~1980年代中盤)</h3>
+<p>初期の3次元FEM解析への挑戦は、メモリリソースと計算速度との戦いでした。
+*   当初は「バンド行列ソルバ」や「スカイライン法」などの直接法が用いられていましたが、未知数が数1,000を超えると当時のメインフレームでも計算不能に陥りました。
+*   <strong>Meijerink &amp; van der Vorst <a href="#ref6" class="ref-link">[6]</a></strong> (1977) による不完全コレスキー分解を用いた前処理付きCG法（ICCG法）の提案は、この状況を一変させました。日本国内では、特に日立・富士通・NECなどの国産スーパーコンピュータ（ベクトル計算機）上でのICCG法の高速化（超平面法によるベクトル化など）が、企業・大学で熱心に研究されました。<strong>藤原・中田ら <a href="#ref3" class="ref-link">[3]</a></strong> は、リナンバリングや加速係数によるICCG法の収束特性改善を体系的に研究し、「良い前処理を行えば反復法は速い」という認識の定着に大きく貢献しました。</p>
+<h3>2. 辺要素の登場と「特異性の壁」 (1980年代後半〜)</h3>
+<p>T. Weiland (FIT) や A. Bossavit (Edge Elements) らにより、スプリアス解を含まないベクトル解析として「辺要素」が理論化されました。しかし、これを実装しようとした研究者たちは、大きな壁に直面しました。
+*   <strong>特異行列 (Singular Matrix)</strong>: $\text{rot grad} \phi = 0$ の関係により、係数行列 $A$ が不定（Singular）になり、通常のコレスキー分解やICCG法がそのままでは適用できなかったのです（ピボットがゼロになる）。
+*   <strong>世界的な迷走</strong>:
+    *   欧米の研究者の多くは、「数学的に正しい行列にする」ことを重視し、Tree-Cotree分解などのグラフ理論を用いてゲージ不定性を除去（Gauge Fixing）する方法を模索しました。しかし、これは前処理の実装を極めて複雑にし、スパース性を損なうものでした。
+    *   あるいは、ペナルティ項を加えて無理やり正定値化する方法も試みられましたが、ペナルティ係数の調整という新たな問題を招きました。</p>
+<h3>3. 日本独自のブレイクスルー：Shifted ICCG (1990年代初頭)</h3>
+<p>この停滞を打破したのが、日本国内の現場からの実用的なアプローチでした。
+*   <strong>亀有昭久氏（元・三菱原子力工業、現SSIL）の直感と実証 <a href="#ref2" class="ref-link">[2]</a></strong>:
+    *   三菱原子力工業時代から大規模電磁界解析に取り組んでいた亀有氏は、数学的な厳密さよりも「解けること」を優先し、既存のICCGコードにわずかな変更（対角シフト <strong><a href="#ref5" class="ref-link">[5]</a></strong>）を加えるだけで、特異行列が安定して解けることを発見しました。
+    *   この <strong>Shifted ICCG</strong> 法は、ゲージ固定のような複雑な前処理を必要とせず、$LDL^T$分解（ルートフリー / square-root-free）を用いることで計算も高速でした。
+*   <strong>Van der Vorst との交流</strong>:
+    *   オランダの H. A. van der Vorst 教授は、電磁界解析コミュニティ（COMPUMAG等）とも深い関わりを持ち、1990年に複素対称行列向けの <strong>COCG法 <a href="#ref4" class="ref-link">[4]</a></strong> を提案しました。
+    *   日本の研究者は即座にこれを取り入れ、複素数に対しても Shifted IC + COCG を適用することで、渦電流解析などの周波数応答解析においても「特異行列のまま解く」スタイルを確立しました。</p>
+<h3>4. 理論的裏付けとデファクトスタンダード化 (2000年代〜)</h3>
+<ul>
+<li>長らく「経験的に動く」とされてきたこの手法に対し、<strong>五十嵐 (北大) <a href="#ref1" class="ref-link">[1]</a></strong> は数学的なメスを入れました。<ul>
+<li>「ゲージ固定を行うと、むしろ行列のスペクトル特性（固有値分布）が悪化し、収束が遅くなること」を理論的に示しました。</li>
+<li>逆に、「特異行列のままであっても、適切な初期値（勾配成分ゼロ）とKrylov部分空間法を組み合わせれば、実質的に良条件の問題として解ける」ことを証明しました。</li>
+</ul>
+</li>
+<li>これにより、Shifted ICCGは単なる「便宜的な手法」から「理論的裏付けのある最適解」へと昇華され、日本発の技術として、現在も多くの商用・アカデミックコードのコアエンジンとして稼働しています。</li>
+</ul>
+<hr />
+<h2>参考文献 (References)</h2>
+<ol class="references">
+
+<li id="ref1"><strong>H. Igarashi, T. Honma</strong>, "On the property of the ICCG method applied to the finite element equation for quasi-static fields," <em>IEEE Transactions on Magnetics</em>, vol. 38, no. 2, pp. 565-568, 2002.</li>
+<li id="ref2"><strong>A. Kameari</strong> (SSIL), "Calculation of transient 3D eddy current using edge-elements," <em>IEEE Transactions on Magnetics</em>, vol. 26, no. 2, pp. 466-469, 1990.</li>
+<li id="ref3"><strong>K. Fujiwara, T. Nakata</strong>, "Acceleration of convergence characteristic of the ICCG method," <em>IEEE Transactions on Magnetics</em>, vol. 29, no. 2, pp. 1958-1961, 1993.</li>
+<li id="ref4"><strong>H. A. van der Vorst</strong> and J. B. M. Melissen, "A Petrov-Galerkin type method for solving Ax=b, where A is symmetric complex," <em>IEEE Transactions on Magnetics</em>, vol. 26, no. 1, pp. 706-708, 1990.</li>
+<li id="ref5"><strong>T. A. Manteuffel</strong>, "An incomplete factorization technique for positive definite linear systems," <em>Mathematics of Computation</em>, vol. 34, no. 150, pp. 473-497, 1980. <a href="https://doi.org/10.1090/S0025-5718-1980-0559197-0">DOI: 10.1090/S0025-5718-1980-0559197-0</a></li>
+<li id="ref6"><strong>J. A. Meijerink, H. A. van der Vorst</strong>, "An iterative solution method for linear systems of which the coefficient matrix is a symmetric M-matrix," <em>Mathematics of Computation</em>, vol. 31, no. 137, pp. 148-162, 1977. <a href="https://doi.org/10.1090/S0025-5718-1977-0438681-4">DOI: 10.1090/S0025-5718-1977-0438681-4</a></li>
+<li id="ref7"><strong>D. S. Kershaw</strong>, "The incomplete Cholesky-conjugate gradient method for the iterative solution of systems of linear equations," <em>Journal of Computational Physics</em>, vol. 26, no. 1, pp. 43-65, 1978. <a href="https://doi.org/10.1016/0021-9991(78)90098-0">DOI: 10.1016/0021-9991(78)90098-0</a></li>
+</ol>
+<hr />
+<p><em>Generated by geminiさん on 2026-01-29</em></p>
+</body>
+</html>
