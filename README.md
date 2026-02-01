@@ -1,7 +1,6 @@
 ﻿# SparseSolv
 SparseMatrix and Matrix Solvers including 
 - shifted-ICCG
-- multicolor ordering shifted ICCG
 - shifted-IC+MRTR
 - Eisenstat's Symmetric Gauss-Seidel-MRTR.
 
@@ -26,11 +25,12 @@ https://u.muroran-it.ac.jp/it-elec-lab/open_data/voxel_data/MeshData_2000000ele.
 Please unzip the zip-file, and put "*.vxldata" files at "examples/VoxelFEM/MeshData/".<br>
 The  "Defines_Mesh.h" at "examples/VoxelFEM/" is overwrite by the same file in the zip-file.<br>
 
-# Contributor
+# Contributors
  - Takahiro Sato (Muroran institute of technology, JAPAN)
  - Shingo Hiruma (Kyoto University, JAPAN)
  - Kengo Sugahara (Kindai University, JAPAN)
  - Tomonori Tsuburaya (Fukuoka University, JAPAN)
+ - Hideaki Nagamine (Gifu University)
 
 # 本ライブラリの説明 (explain in Japanese)
  本ライブラリは、日本の磁界系数値解析の研究者による疎行列ソルバのライブラリです。電磁界有限要素法のソルバとして広く使われている。加速係数付きICCG法の線形ソルバです。また、MRTR法も実装されています。<br>
