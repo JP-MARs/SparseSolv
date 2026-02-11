@@ -380,6 +380,15 @@ bool MatSolvers::solveICMRTR(const slv_int size, const double conv_cri, const in
 		double v_w = vecV.dot(vecW);
 
 		if(It == 0){
+			/* 数値的破綻チェック */
+			if(std::abs(v_w) < 1e-30){
+				double norm_r = EvecR.norm();
+				double normR_chk = norm_r / normalizer;
+				if(normR_chk < conv_cri || norm_r < abs_conv_cri){
+					is_conv = true;
+				}
+				break;
+			}
 			/* ζ(0) */
 			zeta = w_r / v_w;
 			zeta_old = zeta;
@@ -389,7 +398,17 @@ bool MatSolvers::solveICMRTR(const slv_int size, const double conv_cri, const in
 			/* (w, y(k)) */
 			double w_y = vecW.dot(EvecY);
 			/* ζ(k), η(k) の式の分母 */
-			const double temp0 = 1.0 / (nu * v_w - w_y * w_y);
+			double denom = nu * v_w - w_y * w_y;
+			/* 数値的破綻チェック */
+			if(std::abs(denom) < 1e-30){
+				double norm_r = EvecR.norm();
+				double normR_chk = norm_r / normalizer;
+				if(normR_chk < conv_cri || norm_r < abs_conv_cri){
+					is_conv = true;
+				}
+				break;
+			}
+			const double temp0 = 1.0 / denom;
 			/* ζ(k) */
 			zeta = nu * w_r * temp0;
 			/* η(k) */
@@ -592,6 +611,15 @@ bool MatSolvers::solveICMRTR(const slv_int size, const double conv_cri, const in
 		dcomplex v_w = vecV.transpose()*vecW;
 
 		if(It == 0){
+			/* 数値的破綻チェック */
+			if(std::abs(v_w) < 1e-30){
+				double norm_r = EvecR.norm();
+				double normR_chk = norm_r / normalizer;
+				if(normR_chk < conv_cri || norm_r < abs_conv_cri){
+					is_conv = true;
+				}
+				break;
+			}
 			/* ζ(0) */
 			zeta = w_r / v_w;
 			zeta_old = zeta;
@@ -602,7 +630,17 @@ bool MatSolvers::solveICMRTR(const slv_int size, const double conv_cri, const in
 			//dcomplex w_y = vecW.dot(EvecY);
 			dcomplex w_y = vecW.transpose()*EvecY;
 			/* ζ(k), η(k) の式の分母 */
-			const dcomplex temp0 = 1.0 / (nu * v_w - w_y * w_y);
+			dcomplex denom = nu * v_w - w_y * w_y;
+			/* 数値的破綻チェック */
+			if(std::abs(denom) < 1e-30){
+				double norm_r = EvecR.norm();
+				double normR_chk = norm_r / normalizer;
+				if(normR_chk < conv_cri || norm_r < abs_conv_cri){
+					is_conv = true;
+				}
+				break;
+			}
+			const dcomplex temp0 = 1.0 / denom;
 			/* ζ(k) */
 			zeta = nu * w_r * temp0;
 			/* η(k) */

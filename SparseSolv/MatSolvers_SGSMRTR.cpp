@@ -309,6 +309,15 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 		double Ar_Ar =  EvecARd.dot(EvecARd);
 
 		if(It == 0){
+			/* 数値的破綻チェック */
+			if(std::abs(Ar_Ar) < 1e-30){
+				double norm_r = EvecRd.norm();
+				double normR_chk = norm_r / normalizer;
+				if(normR_chk < conv_cri || norm_r < abs_conv_cri){
+					is_conv = true;
+				}
+				break;
+			}
 			/* ζ(0) */
 			zeta = Ar_r / Ar_Ar;
 			zeta_old = zeta;
@@ -318,7 +327,17 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 			/* (A*rd(k), y(k)) */
 			double Ar_y = EvecARd.dot(EvecY);
 			/* ζ(k), η(k) の式の分母 */
-			double temp = 1.0 / (nu * Ar_Ar - Ar_y * Ar_y);
+			double denom = nu * Ar_Ar - Ar_y * Ar_y;
+			/* 数値的破綻チェック */
+			if(std::abs(denom) < 1e-30){
+				double norm_r = EvecRd.norm();
+				double normR_chk = norm_r / normalizer;
+				if(normR_chk < conv_cri || norm_r < abs_conv_cri){
+					is_conv = true;
+				}
+				break;
+			}
+			double temp = 1.0 / denom;
 			/* ζ(k) */
 			zeta = nu * Ar_r * temp;
 			/* η(k) */
@@ -517,6 +536,15 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 		dcomplex Ar_Ar =  EvecARd.transpose()*EvecARd;
 
 		if(It == 0){
+			/* 数値的破綻チェック */
+			if(std::abs(Ar_Ar) < 1e-30){
+				double norm_r = EvecRd.norm();
+				double normR_chk = norm_r / normalizer;
+				if(normR_chk < conv_cri){
+					is_conv = true;
+				}
+				break;
+			}
 			/* ζ(0) */
 			zeta = Ar_r / Ar_Ar;
 			zeta_old = zeta;
@@ -527,7 +555,17 @@ bool MatSolvers::solveSGSMRTR(const slv_int size, const double conv_cri, const i
 			//dcomplex Ar_y = EvecARd.dot(EvecY);
 			dcomplex Ar_y = EvecARd.transpose()*EvecY;
 			/* ζ(k), η(k) の式の分母 */
-			dcomplex temp = 1.0 / (nu * Ar_Ar - Ar_y * Ar_y);
+			dcomplex denom = nu * Ar_Ar - Ar_y * Ar_y;
+			/* 数値的破綻チェック */
+			if(std::abs(denom) < 1e-30){
+				double norm_r = EvecRd.norm();
+				double normR_chk = norm_r / normalizer;
+				if(normR_chk < conv_cri){
+					is_conv = true;
+				}
+				break;
+			}
+			dcomplex temp = 1.0 / denom;
 			/* ζ(k) */
 			zeta = nu * Ar_r * temp;
 			/* η(k) */

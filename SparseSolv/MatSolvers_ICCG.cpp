@@ -249,7 +249,16 @@ bool MatSolvers::solveICCG(const slv_int size, const double conv_cri, const int 
 		/* α計算 */
 		//const double temp = EvecR.dot(EvecLDV);
 		//alpha = temp / temp2;
-		const double temp2 = EvecP.dot(EtempAP);		
+		const double temp2 = EvecP.dot(EtempAP);
+		/* 数値的破綻チェック: pApが0に近い場合、収束確認してから終了 */
+		if(std::abs(temp2) < 1e-30){
+			const double chk_norm = EvecR.norm();
+			const double chk_normR = chk_norm / normalizer;
+			if(chk_normR < conv_cri || chk_norm < abs_conv_cri){
+				is_conv = true;
+			}
+			break;
+		}
 		alpha = rur0 / temp2;
 		
 
