@@ -1,0 +1,340 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Technical background &mdash; SparseSolv  ドキュメント</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=c033477b"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="_static/translations.js?v=4755f45a"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="prev" title="Introduction" href="Introduction.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SparseSolv
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Technical background</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#oss-iccg">[はじめに]　本OSS（加速係数ICCG）の技術背景</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#theoretical-background">１．理論的背景 (Theoretical Background)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#a-cgiccg">1.A. CG法とICCG法</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#b-cocg-conjugate-orthogonal-cg">1.B. COCG法 (Conjugate Orthogonal CG)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">直交性の定義の違い</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#c-ic-incomplete-cholesky-factorization-with-shitfed-factor">1.C. 加速係数付きIC分解(Incomplete Cholesky factorization with shitfed factor)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#historical-evolution">2. 電磁界解析における行列解法の歴史的変遷 (Historical Evolution)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#a-1980">2.A. バンド行列とベクトル計算機の時代 (~1980年代中盤)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#b-1980">2.B. 辺要素の登場と「特異性の壁」 (1980年代後半〜)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#c-shifted-iccg-1990">2.C. 日本独自のブレイクスルー：Shifted ICCG (1990年代初頭)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#d-2000">2.D. 理論的裏付けとデファクトスタンダード化 (2000年代〜)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#practical-implementation">実用的実装の検討 (Practical Implementation)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">ベンチマークモデル</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">対角スケーリングの数学的等価性</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">実装上の最適化ポイント</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">加速係数</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#references">参考文献 (References)</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SparseSolv</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Technical background</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/history.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div style="text-align: justify;">
+<section class="tex2jax_ignore mathjax_ignore" id="technical-background">
+<h1>Technical background<a class="headerlink" href="#technical-background" title="Link to this heading"></a></h1>
+<section id="oss-iccg">
+<h2>[はじめに]　本OSS（加速係数ICCG）の技術背景<a class="headerlink" href="#oss-iccg" title="Link to this heading"></a></h2>
+<p> 本ライブラリで提供している加速係数付きICCG法が発達した技術的背景を紹介します。
+特に、<strong>日本国内の電磁界解析コミュニティで独自に発展・定着した実装ノウハウ</strong>（Shifted ICCGや <span class="math notranslate nohighlight">\(LDL^{T}\)</span> 分解の採用など）や、辺要素FEM特有の収束性に関する議論に焦点を当てています。</p>
+</section>
+<section id="theoretical-background">
+<h2>１．理論的背景 (Theoretical Background)<a class="headerlink" href="#theoretical-background" title="Link to this heading"></a></h2>
+<p> 電磁界解析（特にFEM）において、離散化により得られる連立一次方程式 <span class="math notranslate nohighlight">\(A x=b\)</span> は、大規模かつ疎（Sparse）な構造を持ちます。
+この行列 <span class="math notranslate nohighlight">\(A\)</span> の性質により、適用すべきクリロフ部分空間法が異なります。</p>
+<section id="a-cgiccg">
+<h3>1.A. CG法とICCG法<a class="headerlink" href="#a-cgiccg" title="Link to this heading"></a></h3>
+<p><strong>適用対象</strong>: 実対称正定値行列 (Real Symmetric Positive Definite)</p>
+<p>関数 <span class="math notranslate nohighlight">\(\phi(x)\)</span> の最小化問題と等価です。</p>
+<div class="math notranslate nohighlight">
+\[
+\phi(x) = \frac{1}{2} x^T A x - x^T b
+\]</div>
+<p>探索方向 <span class="math notranslate nohighlight">\(p_k\)</span> が <span class="math notranslate nohighlight">\(A\)</span>-直交 (共役) であるように選ばれます。</p>
+<div class="math notranslate nohighlight">
+\[
+p_i^T A p_j = 0 \quad (i \neq j)
+\]</div>
+<p> 収束性を改善するために、不完全コレスキー分解 (Incomplete Cholesky Decomposition) を前処理行列 <span class="math notranslate nohighlight">\(M\)</span> として用いるのが <strong>ICCG法</strong> です。</p>
+<div class="math notranslate nohighlight">
+\[
+M = LDL^{T} \approx A
+\]</div>
+</section>
+<section id="b-cocg-conjugate-orthogonal-cg">
+<h3>1.B. COCG法 (Conjugate Orthogonal CG)<a class="headerlink" href="#b-cocg-conjugate-orthogonal-cg" title="Link to this heading"></a></h3>
+<p><strong>適用対象</strong>: 複素対称行列 (Complex Symmetric)</p>
+<div class="math notranslate nohighlight">
+\[
+A = A^T \quad (\text{ただし通常 } A \neq A^H)
+\]</div>
+<p>渦電流解析などの周波数領域FEMでは、行列は複素対称になります。これに対して、BiCG法よりも効率的なCOCG法 (van der Vorst, 1990) が用いられます。</p>
+<section id="id1">
+<h4>直交性の定義の違い<a class="headerlink" href="#id1" title="Link to this heading"></a></h4>
+<p>通常の複素内積（エルミート内積）ではなく、双線形形式 (bilinear form) を用います。</p>
+<div class="math notranslate nohighlight">
+\[
+(x, y)_* = x^T y \quad (\text{共役をとらない})
+\]</div>
+<p>これにより、CG法と同様の3項漸化式で更新が可能となり、メモリ効率と計算速度が向上します。</p>
+</section>
+</section>
+<section id="c-ic-incomplete-cholesky-factorization-with-shitfed-factor">
+<h3>1.C. 加速係数付きIC分解(Incomplete Cholesky factorization with shitfed factor)<a class="headerlink" href="#c-ic-incomplete-cholesky-factorization-with-shitfed-factor" title="Link to this heading"></a></h3>
+<p> 上述の通り、CG法を使う場合は、通常、行列の前処理を行うことで収束性が改善されます。
+特に「不完全コレスキー分解」を前処理として利用するCG法をICCG法と呼びます。一般的な行列 <span class="math notranslate nohighlight">\(A\)</span> ではICCG法が有効ですが、ここで電磁気のFEMに特有の現象が影響します。<br>
+ 電磁気FEMの場合、 <span class="math notranslate nohighlight">\(\text{rot grad} \phi = 0\)</span> の関係により、係数行列 <span class="math notranslate nohighlight">\(A\)</span> が不定（Singular）になり、通常のコレスキー分解やICCG法がそのままでは適用できなくなります。（ピボットがゼロになる）
+不定性をなくすため、木構造によるゲージを課し不定性を無くすことができるのですが、極端に収束が遅くなることが知られていました。そこで日本で考案され、日本では広く利用されているのが「加速係数付きのICCG法」です。<br>
+ 加速係数付きのIC分解では、前処理行列を作成する際、元の行列 <span class="math notranslate nohighlight">\(A\)</span> そのものではなく、対角成分を <span class="math notranslate nohighlight">\(\alpha\)</span> 倍した行列 <span class="math notranslate nohighlight">\(A'\)</span> に対して不完全コレスキー分解を実行します。
+つまり、元の行列 <span class="math notranslate nohighlight">\(A\)</span> を、その対角成分 <span class="math notranslate nohighlight">\(D\)</span> とそれ以外 <span class="math notranslate nohighlight">\(K\)</span> に分けて以下のように表記します。</p>
+<div class="math notranslate nohighlight">
+\[
+A = D+K
+\]</div>
+<p>そして、IC分解を、 <span class="math notranslate nohighlight">\(A\)</span> ではなく、対角成分を <span class="math notranslate nohighlight">\(\alpha\)</span> 倍した行列 <span class="math notranslate nohighlight">\(A'\)</span> に対して適用します。</p>
+<div class="math notranslate nohighlight">
+\[
+A' = \alpha D+K
+\]</div>
+<p>この <span class="math notranslate nohighlight">\(\alpha\)</span> は加速係数と日本では呼ばれています。このようにすれば、不定な行列であってもIC分解を適用することができ、ICCG法を適用することができます。そして、この方法を用いたほうが、ゲージを課し不定性を無くすよりも非常に高速に解けることが証明されています(後述)。そのため、日本の電磁界解析では、加速係数付きICCG法が広く利用されています。<br>
+ 加速係数の値は問題依存であり、適切な値を設定することで収束性が改善されます。ただし固定値でも通常のICCG法より十分に高速化されます。固定値を使う場合は、1.05や1.2を使うことが多いようです。</p>
+<blockquote>
+<div><p><strong>重要：</strong>
+行列 <span class="math notranslate nohighlight">\(A\)</span> の修正は「前処理行列 <span class="math notranslate nohighlight">\(M\)</span>」を作るためだけに使用します。それ以外、例えば、残差 <span class="math notranslate nohighlight">\(r = b - Ax\)</span> の計算には、<strong>必ず元の行列 <span class="math notranslate nohighlight">\(A\)</span></strong> を使用します。（そうしないと、解くべき問題自体が変わってしまう。）</p>
+</div></blockquote>
+</section>
+</section>
+<hr class="docutils" />
+<section id="historical-evolution">
+<h2>2. 電磁界解析における行列解法の歴史的変遷 (Historical Evolution)<a class="headerlink" href="#historical-evolution" title="Link to this heading"></a></h2>
+<p> 日本の計算電磁気学（Computational Electromagnetics）分野において、現在の標準的な解法（Shifted ICCG）が確立されるまでには、1980年代から90年代にかけてのハードウェアの進化と、定式化に関する深い議論の歴史がありました。</p>
+<section id="a-1980">
+<h3>2.A. バンド行列とベクトル計算機の時代 (~1980年代中盤)<a class="headerlink" href="#a-1980" title="Link to this heading"></a></h3>
+<p> 初期の3次元FEM解析への挑戦は、メモリリソースと計算速度の問題でした。</p>
+<ul class="simple">
+<li><p>当初は「バンド行列ソルバ」や「スカイライン法」などの直接法が用いられていましたが、未知数が数1,000を超えると当時のメインフレームでも計算不能になりました。</p></li>
+<li><p><strong>Meijerink &amp; van der Vorst [6]</strong> (1977) により、不完全コレスキー分解を用いた前処理付きCG法（ICCG法）が提案されました。日本国内では、特に日立・富士通・NECなどの国産スーパーコンピュータ（ベクトル計算機）上でのICCG法の高速化（超平面法によるベクトル化など）が、企業・大学で熱心に研究されました。</p></li>
+<li><p><strong>岡山大学・中田高義研究室の貢献</strong>: 中田高義教授率いる岡山大学の研究グループ（藤原耕二氏を含む）は、ICCG法の収束特性改善に関して日本をリードする研究を行いました <strong>[3]</strong>。特に：</p>
+<ul>
+<li><p>リナンバリング（reverse Cuthill-McKee法など）による行列帯幅縮小と収束改善</p></li>
+<li><p><strong>シフト係数（加速係数）</strong> の導入による収束安定化</p></li>
+<li><p>磁性材料の標準磁気特性測定法の確立</p></li>
+</ul>
+</li>
+</ul>
+<p>など、実用化に不可欠な基盤技術を体系的に研究し、「良い前処理を行えば反復法は速い」という認識の定着に大きく貢献しました。中田研出身の研究者は現在も国内外で電磁界解析の第一線で活躍しています。</p>
+</section>
+<section id="b-1980">
+<h3>2.B. 辺要素の登場と「特異性の壁」 (1980年代後半〜)<a class="headerlink" href="#b-1980" title="Link to this heading"></a></h3>
+<p>T. Weiland (FIT) や A. Bossavit (Edge Elements) らにより、スプリアス解を含まないベクトル解析として「辺要素」が理論化されました。しかし、実装段階で大きな問題が生じました。</p>
+<ul class="simple">
+<li><p><strong>特異行列 (Singular Matrix)</strong>: <span class="math notranslate nohighlight">\(\text{rot grad} \phi = 0\)</span> の関係により、係数行列 <span class="math notranslate nohighlight">\(A\)</span> が不定（Singular）になり、通常のコレスキー分解やICCG法はそのまま適用できないという問題が生じました。（ピボットがゼロになる）。</p></li>
+<li><p><strong>当時の世界（日本以外）の状況</strong>:</p>
+<ul>
+<li><p>欧米では、「数学的に正しい行列にする」ことを重視し、Tree-Cotree分解などのグラフ理論を用いてゲージ不定性を除去（Gauge Fixing）する方法が検討されました。しかし、これは前処理の実装を複雑にし、スパース性を損なう可能性がありました。</p></li>
+<li><p>ほかに、ペナルティ項を加えて無理やり正定値化する方法も試みられました。しかし、ペナルティ係数の調整という新たな問題が生じました。</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="c-shifted-iccg-1990">
+<h3>2.C. 日本独自のブレイクスルー：Shifted ICCG (1990年代初頭)<a class="headerlink" href="#c-shifted-iccg-1990" title="Link to this heading"></a></h3>
+<p>一方、日本では、企業の現場からの実用的なアプローチが生まれました。</p>
+<ul class="simple">
+<li><p><strong>亀有昭久氏（元・三菱原子力工業、現SSIL）による辺要素FEMへの適用 [2]</strong>:</p>
+<ul>
+<li><p>Kershaw <strong>[7]</strong> が1978年にプラズマシミュレーションの負ピボット問題を回避するために提案し、Manteuffel <strong>[5]</strong> が理論を体系化した対角シフト付き不完全分解（Shifted IC）を、辺要素FEMの特異行列問題に適用し、その有効性を実証しました（前述の加速係数付きIC分解）。</p></li>
+<li><p>数学的な厳密さよりも「解けること」を優先した実用的アプローチにより、ゲージ固定のような複雑な前処理を必要とせず、 <span class="math notranslate nohighlight">\(LDL^{T}\)</span> 分解（ルートフリー / square-root-free）を用いることで計算も高速な <strong>加速係数付きICCG法</strong> 法が確立されました。</p></li>
+</ul>
+</li>
+<li><p><strong>藤原耕二氏（岡山大、現同志社大）らによるシフト係数の最適化 [3]</strong>:</p>
+<ul>
+<li><p>加速係数の最適値を求める方法が研究され、実対称行列に対しては自動決定法が提案されています <strong>[8]</strong>。</p></li>
+</ul>
+</li>
+<li><p><strong>複素対称行列への拡張（ICCOCG）</strong>:</p>
+<ul>
+<li><p>日本国内では、Van der Vorst の1990年の論文 <strong>[4]</strong> が発表される以前から、複素対称行列に対する ICCG法の拡張（ICCOCG）が実用化されていました。渦電流解析などの周波数応答解析において、複素数に対しても 加速係数付きICCG法 を適用し「特異行列のまま解く」スタイルが確立されていました。</p></li>
+<li><p>オランダの H. A. van der Vorst 教授は、電磁界解析コミュニティ（COMPUMAG等）とも深い関わりを持ち、1990年に複素対称行列向けの <strong>COCG法 [4]</strong> を発表しました。この論文により、双線形形式に基づく直交性の定義と3項漸化式による効率的な更新という<strong>理論的裏付け</strong>が明確になり、日本で先行して実用化されていた手法の数学的正当性が確立されました。</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="d-2000">
+<h3>2.D. 理論的裏付けとデファクトスタンダード化 (2000年代〜)<a class="headerlink" href="#d-2000" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>長らく「経験的に動く」とされてきた「加速係数付きICCG法」ですが、<strong>五十嵐一教授 (北海道大学) [1]</strong> により、数学的な理論が研究されました。</p>
+<ul>
+<li><p>「ゲージ固定を行うと、むしろ行列のスペクトル特性（固有値分布）が悪化し、収束が遅くなること」を理論的に示しました。</p></li>
+<li><p>逆に、「特異行列のままであっても、適切な初期値（勾配成分ゼロ）とKrylov部分空間法を組み合わせれば、実質的に良条件の問題として解ける」ことを証明しました。</p></li>
+</ul>
+</li>
+<li><p>これにより、加速係数付きICCG法は「理論的裏付けのある最適解」となり、日本発の技術として、現在も多くの商用・アカデミックコードのコアエンジンとして利用されています。</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="practical-implementation">
+<h2>実用的実装の検討 (Practical Implementation)<a class="headerlink" href="#practical-implementation" title="Link to this heading"></a></h2>
+<p><strong>岡本教授（現 法政大学）ら [9]</strong> (2014) は、国内10研究機関でICCG法の実装をベンチマーキングし、高速化のための実用的な実装法をまとめました。</p>
+<section id="id2">
+<h3>ベンチマークモデル<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>ボックスシールドモデル</strong>: 節点数558,256、要素数539,105、未知数（DoF）1,594,320、係数行列の非零要素数26,618,443</p></li>
+<li><p>六面体一次辺要素、磁気ベクトルポテンシャル定式化（線形静磁界）</p></li>
+<li><p>CRS（Compressed Row Storage）形式で疎行列を格納</p></li>
+</ul>
+</section>
+<section id="id3">
+<h3>対角スケーリングの数学的等価性<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>対角スケーリング（点ヤコビ前処理）の有無がIC前処理後の収束特性に影響しないことが数学的に証明されました。</p>
+<p>スケーリング行列 <span class="math notranslate nohighlight">\(S\)</span> を対角成分 <span class="math notranslate nohighlight">\(\sqrt{a_{ii}}\)</span> で定義すると：</p>
+<div class="math notranslate nohighlight">
+\[
+\bar{A} = S^{-1}AS^{-T}, \quad \bar{x} = S^{T}x, \quad \bar{b} = S^{-1}b
+\]</div>
+<p>IC分解 <span class="math notranslate nohighlight">\(A \approx CC^{T}\)</span>, <span class="math notranslate nohighlight">\(\bar{A} \approx \bar{C}\bar{C}^{T}\)</span> に対して、 <span class="math notranslate nohighlight">\(\bar{C} = S^{-1}C\)</span> の関係より：</p>
+<div class="math notranslate nohighlight">
+\[
+(C^{-1}AC^{-T})(C^{T}x) = C^{-1}b
+\]</div>
+<p>となり、対角スケーリングの有無に関係なく前処理後の方程式は同値となります。</p>
+</section>
+<section id="id4">
+<h3>実装上の最適化ポイント<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>IC分解の形式</strong>: <span class="math notranslate nohighlight">\(LDL^{T}\)</span> 分解（ルートフリー）において、 <span class="math notranslate nohighlight">\(L\)</span> の対角成分を1とする形式（IC type 2）を採用すると、前進代入で40%以上の高速化が可能</p></li>
+<li><p><strong>前進・後退代入</strong>: 式 <span class="math notranslate nohighlight">\((LD)D^{-1}(LD)^{T}u = r\)</span> の形式に変形し、 <span class="math notranslate nohighlight">\(LD\)</span> を格納することで対角成分のメモリアクセスを削減</p></li>
+<li><p><strong>後退代入のループ方向</strong>: 逆方向にループすることで連続メモリアクセスによる高速化</p></li>
+<li><p><strong>行列ベクトル積</strong>: 下三角部分のループ内で上三角部分の寄与も同時に計算し、メモリアクセス回数を半減</p></li>
+<li><p><strong>キャッシュミス回避</strong>: 間接参照によるキャッシュミスを最小化する実装が重要</p></li>
+</ol>
+</section>
+<section id="id5">
+<h3>加速係数<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>加速係数 <span class="math notranslate nohighlight">\(\gamma\)</span> は問題依存であり、最適値は行列の性質によって異なります</p></li>
+<li><p>岡本らのベンチマーキング <strong>[9]</strong> では比較のため <span class="math notranslate nohighlight">\(\gamma = 1.06\)</span> を統一して使用</p></li>
+<li><p><strong>自動決定法</strong>: 北尾・高橋・藤原ら <strong>[8]</strong> は、残差と汎関数に基づくシフト係数の自動決定法を提案しており、実対称行列に対して適用可能です</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="references">
+<h2>参考文献 (References)<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>H. Igarashi, T. Honma</strong>, &quot;On the property of the ICCG method applied to the finite element equation for quasi-static fields,&quot; <em>IEEE Transactions on Magnetics</em>, vol. 38, no. 2, pp. 565-568, 2002.</p></li>
+<li><p><strong>A. Kameari</strong> (SSIL), &quot;Calculation of transient 3D eddy current using edge-elements,&quot; <em>IEEE Transactions on Magnetics</em>, vol. 26, no. 2, pp. 466-469, 1990.</p></li>
+<li><p><strong>K. Fujiwara, T. Nakata</strong>, &quot;Acceleration of convergence characteristic of the ICCG method,&quot; <em>IEEE Transactions on Magnetics</em>, vol. 29, no. 2, pp. 1958-1961, 1993.</p></li>
+<li><p><strong>H. A. van der Vorst</strong> and J. B. M. Melissen, &quot;A Petrov-Galerkin type method for solving Ax=b, where A is symmetric complex,&quot; <em>IEEE Transactions on Magnetics</em>, vol. 26, no. 1, pp. 706-708, 1990.</p></li>
+<li><p><strong>T. A. Manteuffel</strong>, &quot;An incomplete factorization technique for positive definite linear systems,&quot; <em>Mathematics of Computation</em>, vol. 34, no. 150, pp. 473-497, 1980. <a class="reference external" href="https://doi.org/10.1090/S0025-5718-1980-0559197-0">DOI: 10.1090/S0025-5718-1980-0559197-0</a></p></li>
+<li><p><strong>J. A. Meijerink, H. A. van der Vorst</strong>, &quot;An iterative solution method for linear systems of which the coefficient matrix is a symmetric M-matrix,&quot; <em>Mathematics of Computation</em>, vol. 31, no. 137, pp. 148-162, 1977. <a class="reference external" href="https://doi.org/10.1090/S0025-5718-1977-0438681-4">DOI: 10.1090/S0025-5718-1977-0438681-4</a></p></li>
+<li><p><strong>D. S. Kershaw</strong>, &quot;The incomplete Cholesky-conjugate gradient method for the iterative solution of systems of linear equations,&quot; <em>Journal of Computational Physics</em>, vol. 26, no. 1, pp. 43-65, 1978. <a class="reference external" href="https://doi.org/10.1016/0021-9991(78)90098-0">DOI: 10.1016/0021-9991(78)90098-0</a></p></li>
+<li><p><strong>J. Kitao, Y. Takahashi, K. Fujiwara, T. Mifune, T. Iwashita</strong>, &quot;Automatic determination of acceleration factor in shifted ICCG method for 3-D electromagnetic field analyses,&quot; <em>IEEE Transactions on Magnetics</em>, vol. 49, no. 5, pp. 1741-1744, 2013.</p></li>
+<li><p><strong>Y. Okamoto, Y. Takahashi, K. Fujiwara, A. Ahagon, T. Mifune, T. Iwashita</strong>, &quot;辺要素有限要素解析から得られる実対称線形方程式求解におけるICCG法の実用的実装の検討,&quot; <em>電気学会論文誌B</em>, vol. 134, no. 9, pp. 767-776, 2014. <a class="reference external" href="https://doi.org/10.1541/ieejpes.134.767">DOI: 10.1541/ieejpes.134.767</a></p></li>
+</ol>
+</div></section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Introduction.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, T.Sato.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
