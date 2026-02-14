@@ -1,0 +1,53 @@
+name: Sphinx build
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Doxygen and Python dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y doxygen
+          python -m pip install --upgrade pip
+          pip install sphinx sphinx-rtd-theme
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run Doxygen
+        run: |
+          # Doxyfileの設定に従ってビルド
+          doxygen ./docs/doxygen/Doxyfile
+
+      - name: Sphinx build
+        run: |
+          # docs フォルダの中に source 等がある場合を想定。
+          sphinx-build docs/html docs/_build/html
+
+      - name: Merge Doxygen into Sphinx
+        run: |
+          # Sphinxの出力結果の中にdoxygen用フォルダを作成
+          mkdir -p docs/_build/html/doxygen
+          # DoxygenのHTML出力先をコピー（Doxyfileの設定に合わせてパスを変更してください）
+          # 一般的には [OUTPUT_DIRECTORY]/html/* です。直下なら html/*
+          cp -r ./docs/doxygen/html/* docs/_build/html/doxygen/
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/_build/html
+          # .nojekyll ファイルを自動生成して、_staticなどの読み込みエラーを防ぎます
+          nojekyll: true
