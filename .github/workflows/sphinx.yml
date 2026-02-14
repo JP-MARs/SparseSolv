@@ -36,6 +36,10 @@ jobs:
           # docs フォルダの中に source 等がある場合を想定。
           sphinx-build docs/html docs/_build/html
 
+      - name: Check files (Debug)
+        # ここで現在の全ファイル構造をログに出力します
+        run: ls -R
+
       - name: Merge Doxygen into Sphinx
         run: |
           # Sphinxの出力結果の中にdoxygen用フォルダを作成
