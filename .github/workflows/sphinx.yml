@@ -35,12 +35,7 @@ jobs:
         run: |
           # Doxyfileの設定に従ってビルド
           cd docs/doxygen
-          pwd
           doxygen Doxyfile
-
-      - name: Check files (Debug)
-        # ここで現在の全ファイル構造をログに出力します
-        run: ls -R ./docs
 
       - name: Merge Doxygen into Sphinx
         run: |
