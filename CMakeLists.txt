@@ -12,7 +12,7 @@ if(CMAKE_CXX_COMPILER MATCHES "icpx")
 endif()
 #
 # set true if you use pybind11
-set(PYBIND_EXPORT 1)
+#set(PYBIND_EXPORT 1)
 
 # set base dir
 project(SparseSolvBase CXX)
