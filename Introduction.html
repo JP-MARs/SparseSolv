@@ -1,0 +1,288 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="ja" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introduction &mdash; SparseSolv  ドキュメント</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=c033477b"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="_static/translations.js?v=4755f45a"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="next" title="Technical background" href="history.html" />
+    <link rel="prev" title="SparseSolve" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SparseSolv
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">基本クラス</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">疎行列の構築方法</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">疎行列の構築サンプル</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">疎行列の四則演算</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">線形ソルバの利用</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id6">ソルバの実行サンプル</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">Technical background</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SparseSolv</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Introduction</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Introduction.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div style="text-align: justify;">
+<section class="tex2jax_ignore mathjax_ignore" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h1>
+<section id="id1">
+<h2>基本クラス<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>本ライブラリを利用する際に重要なクラスは以下の通りです。</p>
+<ul class="simple">
+<li><p>SparseMat: 実数疎行列のクラス</p></li>
+<li><p>SparseMatC: 複素実数疎行列のクラス</p></li>
+<li><p>MatSolvers: 線形ソルバクラス</p></li>
+</ul>
+</section>
+<section id="id2">
+<h2>疎行列の構築方法<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p> 疎行列は、まず行数を指定して実体を作成します。この段階ではc++のmap[]を用いて、一時保存状態になります。
+疎行列の値は、addメソッドを用いて代入していきます。FEMなどでは各位置の値が一度に決まることはないと思いますので、addを使って順次足していってください。
+仕様上、最初に指定した以上の行に代入するとエラーになるので注意してください。<br>
+ 疎行列の構築が終わったら、fixメソッドを使うことで疎行列の配置を確定させます。具体的には、Eigenの疎行列を作成します。
+行列の確定後（fixを呼び出した後）は、四則演算をEigenの機能を用いることで高速に行えます。
+（なお、確定後もaddを使って行列の更新は可能です。）</p>
+<section id="id3">
+<h3>疎行列の構築サンプル<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p> 疎行列の構築サンプルです。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">double</span> <span class="n">matA</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span><span class="p">{</span>
+	<span class="p">{</span> <span class="mi">61</span><span class="p">,</span>    <span class="mi">0</span><span class="p">,</span>   <span class="mf">3.1</span><span class="p">,</span>  <span class="o">-</span><span class="mf">0.1</span><span class="p">,</span>   <span class="mi">1</span><span class="p">},</span>
+	<span class="p">{</span>  <span class="mi">0</span><span class="p">,</span>   <span class="mf">42.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span>   <span class="mf">0.5</span><span class="p">,</span>   <span class="mi">4</span><span class="p">},</span>
+	<span class="p">{</span> <span class="mf">3.1</span><span class="p">,</span>  <span class="mf">2.0</span><span class="p">,</span> <span class="mf">10.5</span><span class="p">,</span>     <span class="mi">0</span><span class="p">,</span>   <span class="mi">0</span><span class="p">},</span>
+	<span class="p">{</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span>     <span class="mi">0</span><span class="p">,</span>  <span class="mf">80.4</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">},</span>
+	<span class="p">{</span>   <span class="mi">1</span><span class="p">,</span>   <span class="mi">4</span><span class="p">,</span>     <span class="mi">0</span><span class="p">,</span>   <span class="mf">1.5</span><span class="p">,</span>  <span class="mf">1000.0</span><span class="p">}</span>
+<span class="p">};</span>
+<span class="n">size</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="o">//</span><span class="n">疎行列を定義</span>
+<span class="n">SRLfem</span><span class="p">::</span><span class="n">SparseMat</span> <span class="n">matAs</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+<span class="o">/*</span> <span class="n">行列A</span><span class="p">,</span><span class="n">B</span><span class="p">,</span><span class="n">Cの値をセット</span> <span class="o">*/</span>
+<span class="k">for</span><span class="p">(</span><span class="nb">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">size</span> <span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+	<span class="k">for</span><span class="p">(</span><span class="nb">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">size</span> <span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">){</span>
+		<span class="k">if</span><span class="p">(</span> <span class="n">fabs</span><span class="p">(</span><span class="n">matA</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">1.0e-12</span> <span class="p">){</span>
+			<span class="n">matAs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">matA</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]);</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+<span class="o">//</span><span class="n">疎行列位置を確定</span>
+<span class="n">matAs1</span><span class="o">.</span><span class="n">fix</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>なお、fixを呼ぶと、現在の要素位置に従ってEigen疎行列を作成します。
+つまり、現在、長方形になっている場合はそのまま長方形で確定させます。
+数値計算上、正方形にしたい場合は、fixに引数trueを追加してください。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">matAs1</span><span class="o">.</span><span class="n">fix</span><span class="p">(</span><span class="n">true</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>こうすることで、正方形になるようにゼロを代入してEigen疎行列を構築します。</p>
+</section>
+<section id="id4">
+<h3>疎行列の四則演算<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p> fixで確定後は、疎行列の演算を実行可能です。
+（なお、fix前の行列に演算しようと思うと未定義動作となりバグります。）</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>SRLfem::SparseMat matAs(5);
+SRLfem::SparseMat matBs(5);
+......
+
+SRLfem::SparseMat matCs1 = matAs1 + matBs;
+SRLfem::SparseMat matCs2 = matAs1 * matBs;
+
+///...etc
+
+
+//行列・ベクトル積も対応可能
+
+double vec[5] ={1,2,3,4,5};
+double* vec2 = matAs*vec;
+
+vector&lt;double&gt; vec2{1,2,3,4,5};
+vector&lt;double&gt; ans;
+ans = matAs*vec2;
+
+Eigen::VectorXd vec3
+vec3 &lt;&lt; 1,2,3,4,5;
+Eigen::VectorXd ans2 = matAs*vec3;
+
+</pre></div>
+</div>
+<p> ほかにも、転置、部分抽出、上三角、下三角取得、など、数値計算に必要そうな処理は大体実装済みです。
+SparseMat.hppの、メソッド定義をご覧ください。</p>
+</section>
+</section>
+<section id="id5">
+<h2>線形ソルバの利用<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<p> 線形方程式Ax=bを解くソルバを複数実装しています。
+特に電磁気のFEMで有効とされる加速係数付きICCG法を実装している、数少ないOSSと思います。
+本OSS独自実装のソルバは下記のとおりです。</p>
+<ul class="simple">
+<li><p>加速係数付きICCG法（実数・複素）</p></li>
+<li><p>加速係数付きMRTR法（実数・複素）</p></li>
+<li><p>Eisenstatの方法を導入した前処理付きMRTR法（実数・複素）(SGS-MRTR)</p></li>
+</ul>
+<p> なお、現状は、<strong>大規模並列化には対応していません</strong>。Eigenの並列計算機能を用いた小規模並列のみです。数コア程度なら並列化で多少早くなりますが、4,6コア以上を使ってもほとんど効果がないと思います。
+デフォルトではEigenの並列化がonになっていると思いますので、Eigen機能を使って並列数を調整ください。
+不要な場合はEigenの並列化機能をOFFすればソルバ内の並列化もOFFになります。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Eigen</span><span class="p">::</span><span class="n">setNbThreads</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>
+<span class="nb">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">Eigen</span><span class="p">::</span><span class="n">nbThreads</span><span class="p">(</span> <span class="p">);</span>
+<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;Thred Eigen &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">n</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+</pre></div>
+</div>
+<section id="id6">
+<h3>ソルバの実行サンプル<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<p> 独自実装のソルバはMatSolversクラスを使って実行できます。
+収束判定を設定するために内部状態を持っているので、インスタンス化して利用してください。
+以下は、ICCG法の実行例です。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>SRLfem::MatSolvers solvers;
+
+//@param1: 行数
+//@param2: 収束判定
+//@param3: 最大反復数
+//@param4: 加速係数（1以上だとその値で固定。負の値にすると、その絶対値を超えない範囲で自動計算）
+//@param5: 疎行列A
+//@param6: 右辺ベクトルb
+//@param7: 解ベクトルx
+//@param8: ソルバ開始前の解ベクトルゼロ初期化有無。trueでxをゼロで初期化。falseだと何もしない(省略時はfalse)。
+bool bl = solvers.solveICCG(size, 1.0e-8, 10000, 1.05, matAs, vec, results, true);
+</pre></div>
+</div>
+<p> MatSolverクラスは、収束判定などにいくつかの内部変数を持っています。
+代表的なものは以下。</p>
+<ul class="simple">
+<li><p><strong>setSaveLog(true)</strong>: 残差のログを保存します。デフォルトはOFF。</p></li>
+<li><p><strong>setSaveBest(true)</strong>: 最良解を保存するか。デフォルトはOFF。ONのとき、発散時には保存している最良解を解ベクトルxに代入します。</p></li>
+<li><p><strong>setConvNormalizeType(int x)</strong>: 収束判定の正規化タイプ(0:右辺、1:初期残差、2:外部指定)</p></li>
+<li><p><strong>setDiagScale(true)</strong>: 対角スケーリングの有無をセット。デフォルトはOFFです。</p></li>
+</ul>
+<p>残差を記録している場合は、以下のように取得できます。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SRLfem</span><span class="p">::</span><span class="n">MatSolvers</span> <span class="n">solvers</span><span class="p">;</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="n">double</span><span class="o">&gt;</span> <span class="n">log1</span><span class="p">;</span>
+<span class="n">solvers</span><span class="o">.</span><span class="n">getResidualLog</span><span class="p">(</span><span class="n">log1</span><span class="p">);</span>
+<span class="k">for</span><span class="p">(</span><span class="n">auto</span> <span class="n">x</span> <span class="p">:</span> <span class="n">log1</span><span class="p">){</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>ICCG以外のソルバの実行例です。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>SRLfem::MatSolvers solvers;
+
+// [IC-MRTR]
+//@param1: 行数
+//@param2: 収束判定
+//@param3: 最大反復数
+//@param4: 加速係数（1以上だとその値で固定。負の値にすると、その絶対値を超えない範囲で自動計算）
+//@param5: 疎行列A
+//@param6: 右辺ベクトルb
+//@param7: 解ベクトルx
+//@param8: ソルバ開始前の解ベクトルゼロ初期化有無。trueでxをゼロで初期化。falseだと何もしない(省略時はfalse)。
+bool bl = solvers.solveICMRTR(size, 1.0e-8, 10000, 1.05, matAs, vec, results, true);
+
+// [SGS-MRTR]: 加速係数不要。内部で対角スケーリング必須なので、フラグがOFFでも対角スケーリングは実行されます
+//@param1: 行数
+//@param2: 収束判定
+//@param3: 最大反復数
+//@param5: 疎行列A
+//@param6: 右辺ベクトルb
+//@param7: 解ベクトルx
+//@param8: ソルバ開始前の解ベクトルゼロ初期化有無。trueでxをゼロで初期化。falseだと何もしない(省略時はfalse)。
+bool bl = solvers.solveSGSMRTR(size, 1.0e-8, 10000, matAs, vec, results, true);
+
+</pre></div>
+</div>
+</div></section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="SparseSolve" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="history.html" class="btn btn-neutral float-right" title="Technical background" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, T.Sato.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
