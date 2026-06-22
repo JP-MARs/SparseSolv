@@ -1,0 +1,7 @@
+﻿#ifndef DEF_BASICDEF00_HEADER_EIGEN_BASEINCLUDE_SPARSE_CORE_DEF
+#define DEF_BASICDEF00_HEADER_EIGEN_BASEINCLUDE_SPARSE_CORE_DEF
+
+#include "BasicDefinesEigen.hpp"
+#include <Eigen/SparseCore>
+
+#endif
